@@ -1,0 +1,13 @@
+{
+	"env": {
+		"browser": true,
+		"node": true
+	},
+	"globals": {
+		"Uint8Array": true,
+		"Uint16Array": true,
+		"Uint32Array": true
+	},
+	"extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+	"parser": "@typescript-eslint/parser"
+}

@@ -1,87 +1,87 @@
 {
-  "name": "crossfilter2",
-  "version": "1.5.4",
-  "description": "Fast multidimensional filtering for coordinated views.",
-  "license": "Apache-2.0",
-  "keywords": [
-    "analytics",
-    "visualization",
-    "crossfilter"
-  ],
-  "author": {
-    "name": "Mike Bostock",
-    "url": "http://bost.ocks.org/mike"
-  },
-  "contributors": [
-    {
-      "name": "Jason Davies",
-      "url": "http://www.jasondavies.com/"
-    }
-  ],
-  "maintainers": [
-    {
-      "name": "Gordon Woodhull",
-      "url": "https://github.com/gordonwoodhull"
-    },
-    {
-      "name": "Tanner Linsley",
-      "url": "https://github.com/tannerlinsley"
-    },
-    {
-      "name": "Ethan Jewett",
-      "url": "https://github.com/esjewett"
-    }
-  ],
-  "homepage": "https://crossfilter.github.io/crossfilter/",
-  "main": "./crossfilter.js",
-  "module": "main.js",
-  "types": "./index.d.ts",
-  "unpkg": "./crossfilter.min.js",
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/crossfilter/crossfilter.git"
-  },
-  "type": "module",
-  "dependencies": {
-    "@ranfdev/deepobj": "1.0.2"
-  },
-  "devDependencies": {
-    "d3": "^3.5.17",
-    "eslint": "^8.12.0",
-    "package-json-versionify": "1.0.2",
-    "rollup": "^2.78.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-json": "4",
-    "rollup-plugin-node-resolve": "5",
-    "rollup-plugin-terser": "^7.0.2",
-    "semver": "^5.7.0",
-    "sinon": "^7.5.0",
-    "vitest": "^0.22.1"
-  },
-  "scripts": {
-    "benchmark": "node test/benchmark.js",
-    "build": "rollup -c rollup.config.js",
-    "clean": "rm -f crossfilter.js crossfilter.min.js",
-    "test": "vitest && eslint src/"
-  },
-  "files": [
-    "index.js",
-    "main.js",
-    "src/**",
-    "index.d.ts",
-    "crossfilter.js",
-    "crossfilter.min.js"
-  ],
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true
-    },
-    "globals": {
-      "Uint8Array": true,
-      "Uint16Array": true,
-      "Uint32Array": true
-    },
-    "extends": "eslint:recommended"
-  }
+	"name": "@aias/crossfilter",
+	"version": "2.0.0",
+	"description": "Fast multidimensional filtering for coordinated views.",
+	"license": "Apache-2.0",
+	"keywords": [
+		"analytics",
+		"visualization",
+		"crossfilter"
+	],
+	"author": {
+		"name": "Mike Bostock",
+		"url": "http://bost.ocks.org/mike"
+	},
+	"contributors": [
+		{
+			"name": "Jason Davies",
+			"url": "http://www.jasondavies.com/"
+		}
+	],
+	"maintainers": [
+		{
+			"name": "Nick Trombley",
+			"url": "https://github.com/aias"
+		},
+		{
+			"name": "Gordon Woodhull",
+			"url": "https://github.com/gordonwoodhull"
+		},
+		{
+			"name": "Tanner Linsley",
+			"url": "https://github.com/tannerlinsley"
+		},
+		{
+			"name": "Ethan Jewett",
+			"url": "https://github.com/esjewett"
+		}
+	],
+	"homepage": "https://crossfilter.github.io/crossfilter/",
+	"main": "./dist/crossfilter.cjs.js",
+	"module": "./dist/crossfilter.es.js",
+	"types": "./dist/index.d.ts",
+	"unpkg": "./dist/crossfilter.umd.js",
+	"repository": {
+		"type": "git",
+		"url": "http://github.com/crossfilter/crossfilter.git"
+	},
+	"type": "module",
+	"dependencies": {
+		"@ranfdev/deepobj": "1.0.2"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^6.0.0",
+		"@typescript-eslint/parser": "^6.0.0",
+		"d3": "^7.9.0",
+		"eslint": "^9.17.0",
+		"semver": "^7.6.3",
+		"sinon": "^19.0.2",
+		"typescript": "^5.0.0",
+		"vitest": "^1.0.0",
+		"vite": "^5.0.0",
+		"vite-plugin-dts": "^3.0.0",
+		"@types/node": "^20.0.0",
+		"@types/d3": "^7.4.0"
+	},
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"test": "vitest",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint src/**/*.ts",
+		"clean": "rm -rf dist",
+		"prepublishOnly": "npm run clean && npm run build"
+	},
+	"files": [
+		"dist",
+		"src"
+	],
+	"packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/crossfilter.es.js",
+			"require": "./dist/crossfilter.cjs.js"
+		}
+	}
 }

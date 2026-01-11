@@ -1,13 +1,13 @@
-import xfilterArray, { Bitarray, NumberArray } from './array.js';
-import xfilterFilter from './filter.js';
-import cr_identity from './identity.js';
-import cr_zero from './zero.js';
-import xfilterHeapselect from './heapselect.js';
-import xfilterHeap from './heap.js';
-import bisect from './bisect.js';
-import permute from './permute.js';
-import xfilterReduce from './reduce.js';
-import result from './result.js';
+import xfilterArray, { Bitarray, NumberArray } from './array';
+import xfilterFilter from './filter';
+import cr_identity from './identity';
+import cr_zero from './zero';
+import xfilterHeapselect from './heapselect';
+import xfilterHeap from './heap';
+import bisect from './bisect';
+import permute from './permute';
+import xfilterReduce from './reduce';
+import result from './result';
 
 // Type definitions
 type ComparableValue = string | number | boolean;

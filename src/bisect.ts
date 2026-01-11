@@ -1,4 +1,4 @@
-import identity from './identity.js';
+import identity from './identity';
 
 export type ComparableValue = string | number | boolean;
 export type NaturallyOrderedValue = ComparableValue | { valueOf(): ComparableValue } | null | undefined;

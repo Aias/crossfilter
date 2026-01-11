@@ -1,4 +1,4 @@
-import xFilterHeap from './heap.js';
+import xFilterHeap from './heap';
 
 export type HeapselectFn<T> = (a: T[], lo: number, hi: number, k: number) => T[];
 

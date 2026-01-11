@@ -1,18 +1,19 @@
-import deep from "@ranfdev/deepobj";
+import deep from "./deepobj";
 
 type AnyObject = Record<string, unknown>;
 
 function isFunction(value: unknown): value is (...args: unknown[]) => unknown {
-  return typeof value === 'function';
+  return typeof value === "function";
 }
 
-const get = (obj: AnyObject, prop: string): unknown => {
+function get<TValue>(obj: AnyObject, prop: string): TValue;
+function get(obj: AnyObject, prop: string): unknown {
   const value = obj[prop];
   if (isFunction(value)) {
     return value.call(obj);
   }
   return value;
-};
+}
 
 /**
  * get value of object at a deep path.
@@ -26,5 +27,5 @@ const get = (obj: AnyObject, prop: string): unknown => {
  */
 const reg = /\[([\w\d]+)\]/g;
 export default <TValue>(obj: unknown, path: string): TValue => {
-  return deep<TValue>(get, obj, path.replace(reg, '.$1'));
+  return deep<TValue>(get, obj, path.replace(reg, ".$1"));
 };

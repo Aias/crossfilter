@@ -1,5 +1,5 @@
 {
-  "name": "crossfilter2",
+  "name": "@aias/crossfilter",
   "version": "1.5.4",
   "description": "Fast multidimensional filtering for coordinated views.",
   "license": "Apache-2.0",
@@ -33,44 +33,39 @@
     }
   ],
   "homepage": "https://crossfilter.github.io/crossfilter/",
-  "main": "./crossfilter.js",
-  "module": "main.ts",
+  "main": "./dist/index.js",
   "types": "./index.d.ts",
-  "unpkg": "./crossfilter.min.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "http://github.com/crossfilter/crossfilter.git"
   },
   "type": "module",
   "devDependencies": {
-    "@rollup/plugin-typescript": "^12.3.0",
     "d3": "^3.5.17",
     "eslint": "^8.12.0",
     "package-json-versionify": "1.0.2",
-    "rollup": "^2.78.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-json": "4",
-    "rollup-plugin-node-resolve": "5",
-    "rollup-plugin-terser": "^7.0.2",
     "semver": "^5.7.0",
     "sinon": "^7.5.0",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
+    "vite": "^5.4.11",
     "vitest": "^0.22.1"
   },
   "scripts": {
     "benchmark": "node test/benchmark.js",
-    "build": "rollup -c rollup.config.js",
-    "clean": "rm -f crossfilter.js crossfilter.min.js",
+    "build": "vite build",
+    "clean": "rm -rf dist",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "files": [
-    "index.ts",
-    "main.ts",
-    "src/**/*.ts",
     "index.d.ts",
-    "crossfilter.js",
-    "crossfilter.min.js"
+    "dist/**"
   ]
 }

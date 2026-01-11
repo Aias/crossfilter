@@ -49,14 +49,15 @@
   "packageManager": "pnpm@10.28.0",
   "devDependencies": {
     "d3": "^3.5.17",
-    "eslint": "^8.12.0",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
     "package-json-versionify": "1.0.2",
-    "semver": "^5.7.0",
-    "sinon": "^7.5.0",
+    "semver": "^7.7.3",
+    "sinon": "^21.0.1",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
-    "vite": "^5.4.11",
-    "vitest": "^0.22.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.0.16"
   },
   "scripts": {
     "benchmark": "node test/benchmark.js",

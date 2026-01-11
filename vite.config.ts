@@ -1,4 +1,4 @@
-import { resolve } from "path";
+import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -12,14 +12,17 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "index.ts"),
       formats: ["es"],
-      fileName: () => "index.js",
+      fileName: "index",
     },
+    target: "es2020",
     outDir: "dist",
     emptyOutDir: true,
     minify: false,
+    sourcemap: true,
   },
   test: {
     include: ["test/**/*.test.js"],
     globals: false,
+    environment: "node",
   },
 });

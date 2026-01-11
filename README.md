@@ -19,14 +19,18 @@ Want to learn more? [See the wiki.](https://github.com/crossfilter/crossfilter/w
 
 ## Installation
 
-This package can be found under the name `crossfilter2` in npm:
+This package is published as `@aias/crossfilter`:
 
-     npm install crossfilter2
+     pnpm add @aias/crossfilter
+
+Usage (ESM-only):
+
+     import crossfilter, { version } from "@aias/crossfilter";
      
 ## Development
 
 Install dependencies:
 
- * `npm install`
+ * `pnpm install`
 
-Test changes with `npm test`. Build with `npm run build` for use in the browser. You may also want to benchmark your changes with `npm run benchmark`.
+Test changes with `pnpm test`. Build with `pnpm build` (outputs ESM to `dist/`). You may also want to benchmark your changes with `pnpm benchmark`.

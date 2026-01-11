@@ -46,6 +46,7 @@
     "url": "http://github.com/crossfilter/crossfilter.git"
   },
   "type": "module",
+  "packageManager": "pnpm@10.28.0",
   "devDependencies": {
     "d3": "^3.5.17",
     "eslint": "^8.12.0",

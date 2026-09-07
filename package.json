@@ -42,8 +42,7 @@
     "url": "git+https://github.com/Aias/crossfilter.git"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "type": "module",
   "packageManager": "pnpm@12.3.4",

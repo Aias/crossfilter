@@ -910,7 +910,7 @@ describe("dimension", () => {
         expect(data.tags.currentFilter()).toBe(tagsFilter);
         expect(data.tags.hasCurrentFilter()).toBeTruthy();
         expect(data.total.currentFilter()).toBeUndefined();
-        expect(data.total.hasCurrentFilter()).toBeUndefined();
+        expect(data.total.hasCurrentFilter()).toBe(false);
       } finally {
         data.quantity.filterAll();
         data.tags.filterAll();

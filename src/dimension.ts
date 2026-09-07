@@ -3,7 +3,7 @@ import xfilterFilter from "./filter.js";
 import cr_identity from "./identity.js";
 import bisect from "./bisect.js";
 import permute from "./permute.js";
-import sortIndexByValue from "./sort.js";
+import sortIndexByValue, { numericKeys } from "./sort.js";
 import createGroup, { createDimensionGroupAll } from "./group.js";
 import type { Group } from "./group.js";
 import type { GroupAll } from "./groupAll.js";
@@ -25,7 +25,7 @@ export interface Dimension<T, V, A = V> {
   filterFunction(predicate: FilterPredicate<V>): Dimension<T, V, A>;
   filterAll(): Dimension<T, V, A>;
   currentFilter(): FilterValue<V> | undefined;
-  hasCurrentFilter(): boolean | undefined;
+  hasCurrentFilter(): boolean;
   top(k: number, offset?: number): T[];
   bottom(k: number, offset?: number): T[];
   group<K>(key: (value: V) => K): Group<T, K, number>;
@@ -73,7 +73,7 @@ export default function createDimension<T, V, A>(
   let refilter: (values: readonly V[]) => [number, number] = xfilterFilter.filterAll;
   let refilterFunction: FilterPredicate<V> | undefined;
   let filterValue: FilterValue<V> | undefined;
-  let filterValuePresent: boolean | undefined;
+  let filterValuePresent = false;
   const indexListeners: IndexListener<V>[] = [];
   const dimensionGroups: { dispose(): unknown }[] = [];
   let lo0 = 0;
@@ -239,9 +239,15 @@ export default function createDimension<T, V, A>(
       }
     }
 
+    const oldKeys = numericKeys(oldValues, n0);
+    const newKeys = numericKeys(newValues, n1);
+    const oldFirst =
+      oldKeys && newKeys
+        ? (old: number, next: number) => oldKeys[old] <= newKeys[next]
+        : (old: number, next: number) => oldValues[old] <= newValues[next];
     let index5 = 0;
     for (; i0 < n0 && i1 < n1; ++index5) {
-      if (oldValues[i0] < newValues[i1]) {
+      if (oldFirst(i0, i1)) {
         values[index5] = oldValues[i0];
         if (iterable) iterablesIndexFilterStatus[index5] = oldIterablesIndexFilterStatus[i0];
         index[index5] = oldIndex[i0++];
@@ -568,6 +574,7 @@ export default function createDimension<T, V, A>(
     if (top_offset && top_offset > 0) toSkip = top_offset;
 
     while (--i >= lo0 && k > 0) {
+      if (iterable && iterablesIndexFilterStatus[i]) continue;
       if (context.filters.zero((j = index[i]))) {
         if (toSkip > 0) {
           --toSkip;
@@ -618,6 +625,10 @@ export default function createDimension<T, V, A>(
     i = lo0;
 
     while (i < hi0 && k > 0) {
+      if (iterable && iterablesIndexFilterStatus[i]) {
+        i++;
+        continue;
+      }
       if (context.filters.zero((j = index[i]))) {
         if (toSkip > 0) {
           --toSkip;

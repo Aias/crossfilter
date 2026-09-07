@@ -1,5 +1,5 @@
 import { Suspense, use } from "react";
-import { useCrossfilter, useDimensionTop, useGroupValue } from "crossfilter2/react";
+import { useCrossfilter, useDimensionTop, useGroupValue } from "@aias/crossfilter/react";
 import { format } from "d3-format";
 import BarChart from "./BarChart.tsx";
 import FlightList from "./FlightList.tsx";

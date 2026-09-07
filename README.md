@@ -10,14 +10,14 @@ This repository is a TypeScript rewrite of the community-maintained [crossfilter
 
 ## Installation
 
-    pnpm add crossfilter2
+    pnpm add @aias/crossfilter
 
 The package ships as an ES module with TypeScript declarations. Node 22.12 and later can `require()` it as well. A minified browser build at `dist/crossfilter.min.js` exposes a global `crossfilter` for script tags and CDNs.
 
 ## Usage
 
 ```ts
-import crossfilter from "crossfilter2";
+import crossfilter from "@aias/crossfilter";
 
 interface Payment {
   date: Date;
@@ -54,10 +54,10 @@ const unsubscribe = payments.onChange((event) => {
 
 ## React
 
-`crossfilter2/react` bridges crossfilter's synchronous change events to React through `useSyncExternalStore`. React is an optional peer dependency, so the core package stays framework-free.
+`@aias/crossfilter/react` bridges crossfilter's synchronous change events to React through `useSyncExternalStore`. React is an optional peer dependency, so the core package stays framework-free.
 
 ```tsx
-import { useCrossfilter, useDimensionFilter, useGroupAll, useGroupValue } from "crossfilter2/react";
+import { useCrossfilter, useDimensionFilter, useGroupAll, useGroupValue } from "@aias/crossfilter/react";
 
 function Dashboard({ records }: { records: Payment[] }) {
   const { payments, amount, byType, total } = useCrossfilter(records, (payments) => {
@@ -87,7 +87,7 @@ function Dashboard({ records }: { records: Payment[] }) {
 
 ## Demo
 
-The airline on-time performance example from the original project lives in `demo/` as a React application. It consumes the `crossfilter2` package through the workspace, builds its charts on the modular d3 packages, and drives every chart and list through the `crossfilter2/react` hooks. Run `pnpm run demo` to build the library and start the Vite dev server.
+The airline on-time performance example is deployed at https://aias.github.io/crossfilter/ and lives in `demo/` as a React application. It consumes the `@aias/crossfilter` package through the workspace, builds its charts on the modular d3 packages, and drives every chart and list through the `@aias/crossfilter/react` hooks. Run `pnpm run demo` to build the library and start the Vite dev server.
 
 ## Development
 

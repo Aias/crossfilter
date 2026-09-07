@@ -1,4 +1,4 @@
-import type { Crossfilter, Dimension, FilterValue, Group } from "crossfilter2";
+import type { Crossfilter, Dimension, FilterValue, Group } from "@aias/crossfilter";
 import { csvParse } from "d3-dsv";
 import { scaleLinear, scaleTime } from "d3-scale";
 import { timeDay } from "d3-time";

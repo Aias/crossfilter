@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import type { Crossfilter } from "crossfilter2";
-import { useDimensionFilter, useGroupAll } from "crossfilter2/react";
-import type { DimensionFilterSetter } from "crossfilter2/react";
+import type { Crossfilter } from "@aias/crossfilter";
+import { useDimensionFilter, useGroupAll } from "@aias/crossfilter/react";
+import type { DimensionFilterSetter } from "@aias/crossfilter/react";
 import { brushX } from "d3-brush";
 import type { BrushBehavior, BrushSelection } from "d3-brush";
 import { scaleLinear } from "d3-scale";

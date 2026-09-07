@@ -10,6 +10,8 @@ export default defineConfig([
     outDir: "dist",
     dts: true,
     sourcemap: true,
+    publint: true,
+    attw: true,
     plugins: [
       {
         name: "crossfilter:core-entry",

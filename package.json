@@ -42,6 +42,7 @@
     "url": "http://github.com/crossfilter/crossfilter.git"
   },
   "type": "module",
+  "packageManager": "pnpm@12.3.4",
   "devDependencies": {
     "d3": "^3.5.17",
     "oxlint": "~1.81.0",
@@ -55,11 +56,11 @@
   },
   "scripts": {
     "benchmark": "node test/benchmark.js",
-    "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "build": "pnpm run clean && tsc && rollup -c rollup.config.js",
     "clean": "rm -rf lib crossfilter.cjs crossfilter.js crossfilter.min.js main.js",
     "lint": "oxlint --deny-warnings src index.ts type-tests rollup.config.js",
-    "prepack": "npm run build",
-    "test": "npm run build && vitest run && npm run typecheck && npm run lint",
+    "prepack": "pnpm run build",
+    "test": "pnpm run build && vitest run && pnpm run typecheck && pnpm run lint",
     "typecheck": "tsc -p tsconfig.types.json --noEmit"
   },
   "files": [

@@ -21,10 +21,10 @@ Want to learn more? [See the wiki.](https://github.com/crossfilter/crossfilter/w
 
 This package can be found under the name `crossfilter2` in npm:
 
-     npm install crossfilter2
+     pnpm add crossfilter2
      
 ## Development
 
-Use Node.js 24 and install dependencies with `npm ci`.
+Use Node.js 24 and the pnpm version pinned in `package.json`. Install dependencies with `pnpm install --frozen-lockfile`.
 
-`npm test` builds with TypeScript 7, runs the JavaScript tests, checks the generated public types, and runs lint. `npm run build` emits ES module, CommonJS, and browser bundles with TypeScript declarations. `npm run benchmark` measures indexing, filtering, and removal.
+`pnpm test` builds with TypeScript 7, runs the JavaScript tests, checks the generated public types, and runs lint. `pnpm run build` emits ES module, CommonJS, and browser bundles with TypeScript declarations. `pnpm run benchmark` measures indexing, filtering, and removal.

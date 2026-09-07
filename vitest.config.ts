@@ -1,4 +1,11 @@
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+
+const reactTests = {
+  include: ["test/**/*.test.tsx"],
+  benchmark: { include: [] },
+  environment: "happy-dom",
+};
 
 export default defineConfig({
   test: {
@@ -11,12 +18,11 @@ export default defineConfig({
         },
       },
       {
-        test: {
-          name: "react",
-          include: ["test/**/*.test.tsx"],
-          benchmark: { include: [] },
-          environment: "happy-dom",
-        },
+        test: { name: "react", ...reactTests },
+      },
+      {
+        plugins: [react({ compiler: true })],
+        test: { name: "react-compiled", ...reactTests },
       },
     ],
   },

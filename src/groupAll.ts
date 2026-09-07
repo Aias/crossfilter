@@ -48,7 +48,7 @@ export default function createGroupAll<Record>(
     let reduceValue: Value;
     let resetNeeded = true;
 
-    function addData(_newData: Record[], n0: number) {
+    function addData(_newData: readonly Record[], n0: number) {
       if (resetNeeded) return;
       const { data, filters, n } = state;
       for (let i = n0; i < n; ++i) {

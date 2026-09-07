@@ -1,38 +1,41 @@
 import { useEffect, useRef } from "react";
+import type { Crossfilter } from "crossfilter2";
+import { useDimensionFilter, useGroupAll } from "crossfilter2/react";
+import type { DimensionFilterSetter } from "crossfilter2/react";
 import { brushX } from "d3-brush";
 import type { BrushBehavior, BrushSelection } from "d3-brush";
 import { scaleLinear } from "d3-scale";
 import { select } from "d3-selection";
-import { currentRange } from "./flights.ts";
-import type { AxisScale, ChartSpec, Range } from "./flights.ts";
+import { isRange } from "./flights.ts";
+import type { AxisScale, ChartSpec, Flight, Range } from "./flights.ts";
 
 const margin = { top: 10, right: 10, bottom: 20, left: 10 };
 const height = 100;
 
 interface BarChartProps<V extends number | Date> {
+  flights: Crossfilter<Flight>;
   spec: ChartSpec<V>;
 }
 
-export default function BarChart<V extends number | Date>({ spec }: BarChartProps<V>) {
+export default function BarChart<V extends number | Date>({ flights, spec }: BarChartProps<V>) {
   const { id, title, dimension, group, x } = spec;
   const width = x.range()[1];
-  const filter = currentRange(dimension);
+  const [currentFilter, setFilter] = useDimensionFilter(flights, dimension);
+  const filter = isRange(currentFilter) ? currentFilter : null;
+  const bins = useGroupAll(flights, group);
   const y = scaleLinear()
-    .domain([0, group.top(1)[0].value])
+    .domain([0, Math.max(...bins.map((bin) => bin.value))])
     .range([height, 0]);
-  const bars = group
-    .all()
-    .map((bin) => `M${x(bin.key)},${height}V${y(bin.value)}h9V${height}`)
-    .join("");
+  const bars = bins.map((bin) => `M${x(bin.key)},${height}V${y(bin.value)}h9V${height}`).join("");
   const clipStart = filter ? x(filter[0]) : 0;
   const clipEnd = filter ? x(filter[1]) : width;
-  const brushRef = useBrush(spec, filter);
+  const brushRef = useBrush(spec, filter, setFilter);
   return (
     <div className="chart" style={{ width: width + margin.left + margin.right }}>
       <div className="title">
         {title}
         {filter ? (
-          <button type="button" className="reset" onClick={() => dimension.filterAll()}>
+          <button type="button" className="reset" onClick={() => setFilter(null)}>
             reset
           </button>
         ) : null}
@@ -92,8 +95,12 @@ function gripPath(direction: 1 | -1) {
   ].join("");
 }
 
-function useBrush<V extends number | Date>(spec: ChartSpec<V>, filter: Range<V>) {
-  const { dimension, x, round } = spec;
+function useBrush<V extends number | Date>(
+  spec: ChartSpec<V>,
+  filter: Range<V>,
+  setFilter: DimensionFilterSetter<V>,
+) {
+  const { x, round } = spec;
   const ref = useRef<SVGGElement>(null);
   const brushRef = useRef<BrushBehavior<unknown>>(null);
   const dragging = useRef(false);
@@ -122,18 +129,14 @@ function useBrush<V extends number | Date>(spec: ChartSpec<V>, filter: Range<V>)
       .on("brush", (event) => {
         if (!event.sourceEvent) return;
         const range = toRange(event.selection);
-        if (range) dimension.filterRange(range);
+        if (range) setFilter(range);
       })
       .on("end", (event) => {
         if (!event.sourceEvent) return;
         dragging.current = false;
         const range = toRange(event.selection);
-        if (range === null) {
-          dimension.filterAll();
-        } else {
-          dimension.filterRange(range);
-          if (round) brush.move(select(g), [x(range[0]), x(range[1])]);
-        }
+        setFilter(range);
+        if (range && round) brush.move(select(g), [x(range[0]), x(range[1])]);
       });
     select(g).call(brush);
     brushRef.current = brush;
@@ -141,7 +144,7 @@ function useBrush<V extends number | Date>(spec: ChartSpec<V>, filter: Range<V>)
       select(g).on(".brush", null).selectAll("*").remove();
       brushRef.current = null;
     };
-  }, [dimension, round, x]);
+  }, [round, setFilter, x]);
 
   useEffect(() => {
     const g = ref.current;

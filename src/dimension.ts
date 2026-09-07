@@ -41,7 +41,7 @@ export default function createDimension<T, V, A>(
 ): Dimension<T, V, A> {
   const { iterable } = accessor;
 
-  var dimension: Dimension<T, V, A> = {
+  const dimension: Dimension<T, V, A> = {
     accessor: accessor.accessor,
     filter: filter,
     filterExact: filterExact,
@@ -61,45 +61,37 @@ export default function createDimension<T, V, A>(
     },
   };
 
-  var one: number,
-    zero: number,
-    offset: number,
-    id: number,
-    values: V[] = [],
-    index: number[] = [],
-    newValues: V[] = [],
-    newIndex: number[] = [],
-    iterablesIndexCount: number[] = [],
-    iterablesIndexFilterStatus: number[] = [],
-    iterablesEmptyRows: number[] = [],
-    sortRange = function (n: number) {
-      return indexRange(n).sort(function (A, B) {
-        var a = newValues[A],
-          b = newValues[B];
-        return a < b ? -1 : a > b ? 1 : A - B;
-      });
-    },
-    refilter: (values: readonly V[]) => [number, number] = xfilterFilter.filterAll,
-    refilterFunction: FilterPredicate<V> | undefined,
-    filterValue: FilterValue<V> | undefined,
-    filterValuePresent: boolean | undefined,
-    indexListeners: IndexListener<V>[] = [],
-    dimensionGroups: { dispose(): unknown }[] = [],
-    lo0 = 0,
-    hi0 = 0,
-    t = 0;
+  let values: V[] = [];
+  let index: number[] = [];
+  let newValues: V[] = [];
+  let newIndex: number[] = [];
+  let iterablesIndexCount: number[] = [];
+  let iterablesIndexFilterStatus: number[] = [];
+  const iterablesEmptyRows: number[] = [];
+  const sortRange = (n: number) =>
+    indexRange(n).sort((A, B) => {
+      const a = newValues[A];
+      const b = newValues[B];
+      return a < b ? -1 : a > b ? 1 : A - B;
+    });
+  let refilter: (values: readonly V[]) => [number, number] = xfilterFilter.filterAll;
+  let refilterFunction: FilterPredicate<V> | undefined;
+  let filterValue: FilterValue<V> | undefined;
+  let filterValuePresent: boolean | undefined;
+  const indexListeners: IndexListener<V>[] = [];
+  const dimensionGroups: { dispose(): unknown }[] = [];
+  let lo0 = 0;
+  let hi0 = 0;
+  let t = 0;
 
   context.dataListeners.unshift(preAdd);
   context.dataListeners.push(postAdd);
 
   context.removeDataListeners.push(removeData);
 
-  var tmp = context.filters.add();
-  offset = tmp.offset;
-  one = tmp.one;
-  zero = ~one;
-
-  id = (offset << 7) | (Math.log(one) / Math.log(2));
+  const { offset, one } = context.filters.add();
+  const zero = ~one;
+  const id = (offset << 7) | (Math.log(one) / Math.log(2));
 
   const groupState: DimensionGroupState<V> = {
     values,
@@ -115,18 +107,19 @@ export default function createDimension<T, V, A>(
   preAdd(context.data, 0, context.n);
   postAdd(context.data, 0, context.n);
 
-  function preAdd(newData: T[], n0: number, n1: number) {
-    var newIterablesIndexCount: number[] = [],
-      newIterablesIndexFilterStatus: number[] = [];
-    var k: ArrayLike<V> = [],
-      j = 0;
+  function preAdd(newData: readonly T[], n0: number, n1: number) {
+    let newIterablesIndexCount: number[] = [];
+    let newIterablesIndexFilterStatus: number[] = [];
+    let k: ArrayLike<V> = [];
+    let j = 0;
+    let i0 = 0;
 
     if (iterable) {
       t = 0;
       j = 0;
       k = [];
 
-      for (var i0 = 0; i0 < newData.length; i0++) {
+      for (i0 = 0; i0 < newData.length; i0++) {
         for (j = 0, k = accessor.value(newData[i0]); j < k.length; j++) {
           t++;
         }
@@ -135,9 +128,9 @@ export default function createDimension<T, V, A>(
       newValues = [];
       newIterablesIndexCount = indexRange(newData.length);
       newIterablesIndexFilterStatus = indexArray(t, 1);
-      var unsortedIndex = indexRange(t);
+      const unsortedIndex = indexRange(t);
 
-      for (var l = 0, index1 = 0; index1 < newData.length; index1++) {
+      for (let l = 0, index1 = 0; index1 < newData.length; index1++) {
         k = accessor.value(newData[index1]);
 
         if (!k.length) {
@@ -153,7 +146,7 @@ export default function createDimension<T, V, A>(
         }
       }
 
-      var sortMap = sortRange(t);
+      const sortMap = sortRange(t);
 
       newValues = permute(newValues, sortMap);
 
@@ -164,11 +157,11 @@ export default function createDimension<T, V, A>(
       newValues = permute(newValues, newIndex);
     }
 
-    var bounds = refilter(newValues),
-      lo1 = bounds[0],
-      hi1 = bounds[1];
+    let bounds = refilter(newValues);
+    const lo1 = bounds[0];
+    const hi1 = bounds[1];
 
-    var index2, index3, index4;
+    let index2, index3, index4;
     if (iterable) {
       n1 = t;
       if (refilterFunction) {
@@ -221,11 +214,11 @@ export default function createDimension<T, V, A>(
       return;
     }
 
-    var oldValues = values,
-      oldIndex = index,
-      oldIterablesIndexFilterStatus = iterablesIndexFilterStatus,
-      old_n0 = n0,
-      i1 = 0;
+    const oldValues = values;
+    const oldIndex = index;
+    const oldIterablesIndexFilterStatus = iterablesIndexFilterStatus;
+    let old_n0 = n0;
+    let i1 = 0;
 
     i0 = 0;
 
@@ -240,14 +233,14 @@ export default function createDimension<T, V, A>(
     if (iterable) iterablesIndexFilterStatus = indexArray(n0 + n1, 1);
 
     if (iterable) {
-      var oldiiclength = iterablesIndexCount.length;
+      const oldiiclength = iterablesIndexCount.length;
       iterablesIndexCount = xfilterArray.arrayLengthen(iterablesIndexCount, context.n);
-      for (var j = 0; j + oldiiclength < context.n; j++) {
+      for (j = 0; j + oldiiclength < context.n; j++) {
         iterablesIndexCount[j + oldiiclength] = newIterablesIndexCount[j];
       }
     }
 
-    var index5 = 0;
+    let index5 = 0;
     for (; i0 < n0 && i1 < n1; ++index5) {
       if (oldValues[i0] < newValues[i1]) {
         values[index5] = oldValues[i0];
@@ -277,7 +270,7 @@ export default function createDimension<T, V, A>(
     hi0 = bounds[1];
   }
 
-  function postAdd(newData: T[], n0: number, n1: number) {
+  function postAdd(newData: readonly T[], n0: number, n1: number) {
     groupState.values = values;
     groupState.index = index;
     indexListeners.forEach(function (l) {
@@ -289,7 +282,9 @@ export default function createDimension<T, V, A>(
 
   function removeData(reIndex: number[]) {
     if (iterable) {
-      for (var i0 = 0, i1 = 0; i0 < iterablesEmptyRows.length; i0++) {
+      let i0 = 0;
+      let i1 = 0;
+      for (; i0 < iterablesEmptyRows.length; i0++) {
         if (reIndex[iterablesEmptyRows[i0]] !== REMOVED_INDEX) {
           iterablesEmptyRows[i1] = reIndex[iterablesEmptyRows[i0]];
           i1++;
@@ -305,9 +300,10 @@ export default function createDimension<T, V, A>(
       iterablesIndexCount = iterablesIndexCount.slice(0, i1);
     }
 
-    var n0 = values.length;
-    for (var i = 0, j = 0, oldDataIndex; i < n0; ++i) {
-      oldDataIndex = index[i];
+    const n0 = values.length;
+    let j = 0;
+    for (let i = 0; i < n0; ++i) {
+      const oldDataIndex = index[i];
       if (reIndex[oldDataIndex] !== REMOVED_INDEX) {
         if (i !== j) values[j] = values[i];
         index[j] = reIndex[oldDataIndex];
@@ -321,14 +317,14 @@ export default function createDimension<T, V, A>(
     if (iterable) iterablesIndexFilterStatus = iterablesIndexFilterStatus.slice(0, j);
     while (j < n0) index[j++] = 0;
 
-    var bounds = refilter(values);
+    const bounds = refilter(values);
     lo0 = bounds[0];
     hi0 = bounds[1];
   }
 
   function filterIndexBounds(bounds: [number, number]) {
-    var lo1 = bounds[0],
-      hi1 = bounds[1];
+    const lo1 = bounds[0];
+    const hi1 = bounds[1];
 
     if (refilterFunction) {
       refilterFunction = undefined;
@@ -343,13 +339,11 @@ export default function createDimension<T, V, A>(
       return dimension;
     }
 
-    var i,
-      j,
-      k,
-      added: number[] = [],
-      removed: number[] = [],
-      valueIndexAdded = [],
-      valueIndexRemoved = [];
+    let i, j, k;
+    let added: number[] = [];
+    let removed: number[] = [];
+    const valueIndexAdded = [];
+    const valueIndexRemoved = [];
 
     if (lo1 < lo0) {
       for (i = lo1, j = Math.min(lo0, hi1); i < j; ++i) {
@@ -384,8 +378,8 @@ export default function createDimension<T, V, A>(
         context.filters[offset][removed[i]] ^= one;
       }
     } else {
-      var newAdded = [];
-      var newRemoved = [];
+      const newAdded = [];
+      const newRemoved = [];
       for (i = 0; i < added.length; i++) {
         iterablesIndexCount[added[i]]++;
         iterablesIndexFilterStatus[valueIndexAdded[i]] = 0;
@@ -466,7 +460,7 @@ export default function createDimension<T, V, A>(
 
     filterIndexFunction(f, false);
 
-    var bounds = refilter(values);
+    const bounds = refilter(values);
     lo0 = bounds[0];
     hi0 = bounds[1];
 
@@ -474,14 +468,12 @@ export default function createDimension<T, V, A>(
   }
 
   function filterIndexFunction(f: FilterPredicate<V>, filterAll: boolean) {
-    var i,
-      k,
-      x,
-      added: number[] = [],
-      removed: number[] = [],
-      valueIndexAdded = [],
-      valueIndexRemoved = [],
-      indexLength = values.length;
+    let i, k, x;
+    let added: number[] = [];
+    let removed: number[] = [];
+    const valueIndexAdded = [];
+    const valueIndexRemoved = [];
+    const indexLength = values.length;
 
     if (!iterable) {
       for (i = 0; i < indexLength; ++i) {
@@ -514,8 +506,8 @@ export default function createDimension<T, V, A>(
           context.filters[offset][removed[i]] |= one;
       }
     } else {
-      var newAdded = [];
-      var newRemoved = [];
+      const newAdded = [];
+      const newRemoved = [];
       for (i = 0; i < added.length; i++) {
         if (iterablesIndexFilterStatus[valueIndexAdded[i]] === 1) {
           iterablesIndexCount[added[i]]++;
@@ -572,10 +564,10 @@ export default function createDimension<T, V, A>(
   }
 
   function top(k: number, top_offset?: number) {
-    var array: T[] = [],
-      i = hi0,
-      j,
-      toSkip = 0;
+    const array: T[] = [];
+    let i = hi0;
+    let j;
+    let toSkip = 0;
 
     if (top_offset && top_offset > 0) toSkip = top_offset;
 
@@ -607,10 +599,10 @@ export default function createDimension<T, V, A>(
   }
 
   function bottom(k: number, bottom_offset?: number) {
-    var array: T[] = [],
-      i,
-      j,
-      toSkip = 0;
+    const array: T[] = [];
+    let i;
+    let j;
+    let toSkip = 0;
 
     if (bottom_offset && bottom_offset > 0) toSkip = bottom_offset;
 
@@ -660,7 +652,7 @@ export default function createDimension<T, V, A>(
     dimensionGroups.forEach(function (group) {
       group.dispose();
     });
-    var i = context.dataListeners.indexOf(preAdd);
+    let i = context.dataListeners.indexOf(preAdd);
     if (i >= 0) context.dataListeners.splice(i, 1);
     i = context.dataListeners.indexOf(postAdd);
     if (i >= 0) context.dataListeners.splice(i, 1);

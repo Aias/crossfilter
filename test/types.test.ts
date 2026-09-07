@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import crossfilter from "../index.ts";
+import type { PathValue } from "../index.ts";
 
 interface Sale {
   amount: number;
@@ -195,5 +196,36 @@ describe("public types", () => {
     expectTypeOf(reordered).toEqualTypeOf<Sale[]>();
     const serialized = crossfilter.permute(sales, [1, 0], true);
     expectTypeOf(serialized).toEqualTypeOf<unknown[]>();
+  });
+});
+
+describe("string accessor paths", () => {
+  interface Nested {
+    type: string;
+    tags: number[];
+    pair: [string, Date];
+    nested: { deep: { value: boolean } };
+    getYear(): number;
+  }
+  const source = crossfilter<Nested>();
+
+  it("resolves properties, indexes, nested paths, and method calls", () => {
+    expectTypeOf(source.dimension("type").accessor).returns.toEqualTypeOf<string>();
+    expectTypeOf(source.dimension("tags[0]").accessor).returns.toEqualTypeOf<number>();
+    expectTypeOf(source.dimension("tags.0").accessor).returns.toEqualTypeOf<number>();
+    expectTypeOf(source.dimension("pair[1]").accessor).returns.toEqualTypeOf<Date>();
+    expectTypeOf(source.dimension("nested.deep.value").accessor).returns.toEqualTypeOf<boolean>();
+    expectTypeOf(source.dimension("getYear").accessor).returns.toEqualTypeOf<number>();
+    expectTypeOf(source.dimension("tags", true).accessor).returns.toEqualTypeOf<number[]>();
+    expectTypeOf(source.dimension("tags", true).filterExact)
+      .parameter(0)
+      .toEqualTypeOf<number | null | undefined>();
+  });
+
+  it("falls back to unknown for unresolvable or non-literal paths", () => {
+    const dynamic: string = "type";
+    expectTypeOf(source.dimension("missing").accessor).returns.toEqualTypeOf<unknown>();
+    expectTypeOf(source.dimension(dynamic).accessor).returns.toEqualTypeOf<unknown>();
+    expectTypeOf<PathValue<Nested, "tags[0]">>().toEqualTypeOf<number>();
   });
 });

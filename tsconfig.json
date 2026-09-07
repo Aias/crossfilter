@@ -11,7 +11,14 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": []
+    "types": [],
+    "jsx": "react-jsx"
   },
-  "include": ["index.ts", "src/**/*.ts", "test/**/*.ts"]
+  "include": [
+    "index.ts",
+    "react.ts",
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "test/**/*.tsx"
+  ]
 }

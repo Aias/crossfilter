@@ -1,4 +1,3 @@
-import crossfilter from "crossfilter2";
 import type { Crossfilter, Dimension, FilterValue, Group } from "crossfilter2";
 import { csvParse } from "d3-dsv";
 import { scaleLinear, scaleTime } from "d3-scale";
@@ -39,29 +38,6 @@ export interface Filters {
   date: Range<Date>;
 }
 
-export interface FilterStore {
-  subscribe(listener: () => void): () => void;
-  getSnapshot(): number;
-}
-
-function createFilterStore(source: Crossfilter<Flight>): FilterStore {
-  let version = 0;
-  const listeners = new Set<() => void>();
-  source.onChange(() => {
-    version += 1;
-    for (const listener of listeners) listener();
-  });
-  return {
-    subscribe(listener) {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-    getSnapshot: () => version,
-  };
-}
-
 function parseDate(value: string) {
   return new Date(
     2001,
@@ -72,13 +48,8 @@ function parseDate(value: string) {
   );
 }
 
-function isRange<V>(filter: FilterValue<V> | undefined): filter is [V, V] {
+export function isRange<V>(filter: FilterValue<V> | undefined): filter is [V, V] {
   return Array.isArray(filter);
-}
-
-export function currentRange<V>(dimension: Dimension<Flight, V>): Range<V> {
-  const filter = dimension.currentFilter();
-  return isRange(filter) ? filter : null;
 }
 
 function applyFilter<V extends number | Date>(spec: ChartSpec<V>, range: Range<V>) {
@@ -86,8 +57,7 @@ function applyFilter<V extends number | Date>(spec: ChartSpec<V>, range: Range<V
   else spec.dimension.filterAll();
 }
 
-export function createModel(records: Flight[]) {
-  const flights = crossfilter(records);
+export function createModel(flights: Crossfilter<Flight>) {
   const date = flights.dimension((flight) => flight.date);
   const hour = flights.dimension(
     (flight) => flight.date.getHours() + flight.date.getMinutes() / 60,
@@ -137,7 +107,6 @@ export function createModel(records: Flight[]) {
     all: flights.groupAll(),
     date,
     charts,
-    store: createFilterStore(flights),
     applyFilters(filters: Filters) {
       applyFilter(charts.hour, filters.hour);
       applyFilter(charts.delay, filters.delay);
@@ -156,10 +125,10 @@ export function createModel(records: Flight[]) {
 
 export type FlightsModel = ReturnType<typeof createModel>;
 
-export async function loadModel(): Promise<FlightsModel> {
+export async function loadFlights(): Promise<Flight[]> {
   const response = await fetch("/flights-3m.csv");
   const text = await response.text();
-  const records = csvParse(text, (row, index): Flight => ({
+  return csvParse(text, (row, index): Flight => ({
     index,
     date: parseDate(row.date ?? ""),
     delay: Number(row.delay),
@@ -167,5 +136,4 @@ export async function loadModel(): Promise<FlightsModel> {
     origin: row.origin ?? "",
     destination: row.destination ?? "",
   }));
-  return createModel(records);
 }

@@ -102,6 +102,7 @@ class BitArray {
   }
 
   zero(n: number) {
+    if (this.subarrays === 1) return !this[0][n];
     for (let i = 0, len = this.subarrays; i < len; ++i) {
       if (this[i][n]) return false;
     }
@@ -109,6 +110,7 @@ class BitArray {
   }
 
   zeroExcept(n: number, offset: number, zero: number) {
+    if (this.subarrays === 1) return !(offset === 0 ? this[0][n] & zero : this[0][n]);
     for (let i = 0, len = this.subarrays; i < len; ++i) {
       if (i === offset ? this[i][n] & zero : this[i][n]) return false;
     }
@@ -116,6 +118,7 @@ class BitArray {
   }
 
   zeroExceptMask(n: number, mask: readonly number[]) {
+    if (this.subarrays === 1) return (this[0][n] & mask[0]) === 0;
     for (let i = 0, len = this.subarrays; i < len; ++i) {
       if (this[i][n] & mask[i]) return false;
     }
@@ -123,6 +126,7 @@ class BitArray {
   }
 
   only(n: number, offset: number, one: number) {
+    if (this.subarrays === 1) return this[0][n] === (offset === 0 ? one : 0);
     for (let i = 0, len = this.subarrays; i < len; ++i) {
       if (this[i][n] != (i === offset ? one : 0)) return false;
     }
@@ -130,6 +134,10 @@ class BitArray {
   }
 
   onlyExcept(n: number, offset: number, zero: number, onlyOffset: number, onlyOne: number) {
+    if (this.subarrays === 1) {
+      const mask = offset === 0 ? (this[0][n] & zero) >>> 0 : this[0][n];
+      return mask === (onlyOffset === 0 ? onlyOne : 0);
+    }
     for (let i = 0, len = this.subarrays; i < len; ++i) {
       let mask = this[i][n];
       if (i === offset) mask = (mask & zero) >>> 0;

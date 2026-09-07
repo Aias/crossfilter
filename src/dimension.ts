@@ -3,6 +3,7 @@ import xfilterFilter from "./filter.js";
 import cr_identity from "./identity.js";
 import bisect from "./bisect.js";
 import permute from "./permute.js";
+import sortIndexByValue from "./sort.js";
 import createGroup, { createDimensionGroupAll } from "./group.js";
 import type { Group } from "./group.js";
 import type { GroupAll } from "./groupAll.js";
@@ -68,12 +69,7 @@ export default function createDimension<T, V, A>(
   let iterablesIndexCount: number[] = [];
   let iterablesIndexFilterStatus: number[] = [];
   const iterablesEmptyRows: number[] = [];
-  const sortRange = (n: number) =>
-    indexRange(n).sort((A, B) => {
-      const a = newValues[A];
-      const b = newValues[B];
-      return a < b ? -1 : a > b ? 1 : A - B;
-    });
+  const sortRange = (n: number) => sortIndexByValue(newValues, n);
   let refilter: (values: readonly V[]) => [number, number] = xfilterFilter.filterAll;
   let refilterFunction: FilterPredicate<V> | undefined;
   let filterValue: FilterValue<V> | undefined;
@@ -108,6 +104,7 @@ export default function createDimension<T, V, A>(
   postAdd(context.data, 0, context.n);
 
   function preAdd(newData: readonly T[], n0: number, n1: number) {
+    const bits = context.filters[offset];
     let newIterablesIndexCount: number[] = [];
     let newIterablesIndexFilterStatus: number[] = [];
     let k: ArrayLike<V> = [];
@@ -115,6 +112,7 @@ export default function createDimension<T, V, A>(
     let i0 = 0;
 
     if (iterable) {
+      const filterActive = refilterFunction !== undefined || refilter !== xfilterFilter.filterAll;
       t = 0;
       j = 0;
       k = [];
@@ -136,6 +134,7 @@ export default function createDimension<T, V, A>(
         if (!k.length) {
           newIterablesIndexCount[index1] = 0;
           iterablesEmptyRows.push(index1 + n0);
+          if (filterActive) bits[index1 + n0] |= one;
           continue;
         }
         newIterablesIndexCount[index1] = k.length;
@@ -168,7 +167,7 @@ export default function createDimension<T, V, A>(
         for (index2 = 0; index2 < n1; ++index2) {
           if (!refilterFunction(newValues[index2], index2)) {
             if (--newIterablesIndexCount[newIndex[index2]] === 0) {
-              context.filters[offset][newIndex[index2] + n0] |= one;
+              bits[newIndex[index2] + n0] |= one;
             }
             newIterablesIndexFilterStatus[index2] = 1;
           }
@@ -176,13 +175,13 @@ export default function createDimension<T, V, A>(
       } else {
         for (index3 = 0; index3 < lo1; ++index3) {
           if (--newIterablesIndexCount[newIndex[index3]] === 0) {
-            context.filters[offset][newIndex[index3] + n0] |= one;
+            bits[newIndex[index3] + n0] |= one;
           }
           newIterablesIndexFilterStatus[index3] = 1;
         }
         for (index4 = hi1; index4 < n1; ++index4) {
           if (--newIterablesIndexCount[newIndex[index4]] === 0) {
-            context.filters[offset][newIndex[index4] + n0] |= one;
+            bits[newIndex[index4] + n0] |= one;
           }
           newIterablesIndexFilterStatus[index4] = 1;
         }
@@ -191,15 +190,15 @@ export default function createDimension<T, V, A>(
       if (refilterFunction) {
         for (index2 = 0; index2 < n1; ++index2) {
           if (!refilterFunction(newValues[index2], index2)) {
-            context.filters[offset][newIndex[index2] + n0] |= one;
+            bits[newIndex[index2] + n0] |= one;
           }
         }
       } else {
         for (index3 = 0; index3 < lo1; ++index3) {
-          context.filters[offset][newIndex[index3] + n0] |= one;
+          bits[newIndex[index3] + n0] |= one;
         }
         for (index4 = hi1; index4 < n1; ++index4) {
-          context.filters[offset][newIndex[index4] + n0] |= one;
+          bits[newIndex[index4] + n0] |= one;
         }
       }
     }
@@ -323,17 +322,13 @@ export default function createDimension<T, V, A>(
   }
 
   function filterIndexBounds(bounds: [number, number]) {
+    const bits = context.filters[offset];
     const lo1 = bounds[0];
     const hi1 = bounds[1];
 
     if (refilterFunction) {
       refilterFunction = undefined;
-      filterIndexFunction(
-        function (d, i) {
-          return lo1 <= i && i < hi1;
-        },
-        bounds[0] === 0 && bounds[1] === values.length,
-      );
+      filterIndexFunction((d, i) => lo1 <= i && i < hi1, refilter === xfilterFilter.filterAll);
       lo0 = lo1;
       hi0 = hi1;
       return dimension;
@@ -371,11 +366,11 @@ export default function createDimension<T, V, A>(
 
     if (!iterable) {
       for (i = 0; i < added.length; i++) {
-        context.filters[offset][added[i]] ^= one;
+        bits[added[i]] ^= one;
       }
 
       for (i = 0; i < removed.length; i++) {
-        context.filters[offset][removed[i]] ^= one;
+        bits[removed[i]] ^= one;
       }
     } else {
       const newAdded = [];
@@ -384,7 +379,7 @@ export default function createDimension<T, V, A>(
         iterablesIndexCount[added[i]]++;
         iterablesIndexFilterStatus[valueIndexAdded[i]] = 0;
         if (iterablesIndexCount[added[i]] === 1) {
-          context.filters[offset][added[i]] ^= one;
+          bits[added[i]] ^= one;
           newAdded.push(added[i]);
         }
       }
@@ -392,7 +387,7 @@ export default function createDimension<T, V, A>(
         iterablesIndexCount[removed[i]]--;
         iterablesIndexFilterStatus[valueIndexRemoved[i]] = 1;
         if (iterablesIndexCount[removed[i]] === 0) {
-          context.filters[offset][removed[i]] ^= one;
+          bits[removed[i]] ^= one;
           newRemoved.push(removed[i]);
         }
       }
@@ -402,15 +397,15 @@ export default function createDimension<T, V, A>(
 
       if (refilter === xfilterFilter.filterAll) {
         for (i = 0; i < iterablesEmptyRows.length; i++) {
-          if (context.filters[offset][(k = iterablesEmptyRows[i])] & one) {
-            context.filters[offset][k] ^= one;
+          if (bits[(k = iterablesEmptyRows[i])] & one) {
+            bits[k] ^= one;
             added.push(k);
           }
         }
       } else {
         for (i = 0; i < iterablesEmptyRows.length; i++) {
-          if (!(context.filters[offset][(k = iterablesEmptyRows[i])] & one)) {
-            context.filters[offset][k] ^= one;
+          if (!(bits[(k = iterablesEmptyRows[i])] & one)) {
+            bits[k] ^= one;
             removed.push(k);
           }
         }
@@ -468,6 +463,7 @@ export default function createDimension<T, V, A>(
   }
 
   function filterIndexFunction(f: FilterPredicate<V>, filterAll: boolean) {
+    const bits = context.filters[offset];
     let i, k, x;
     let added: number[] = [];
     let removed: number[] = [];
@@ -477,7 +473,7 @@ export default function createDimension<T, V, A>(
 
     if (!iterable) {
       for (i = 0; i < indexLength; ++i) {
-        if (!(context.filters[offset][(k = index[i])] & one) !== !!(x = f(values[i], i))) {
+        if (!(bits[(k = index[i])] & one) !== !!(x = f(values[i], i))) {
           if (x) added.push(k);
           else removed.push(k);
         }
@@ -498,12 +494,12 @@ export default function createDimension<T, V, A>(
 
     if (!iterable) {
       for (i = 0; i < added.length; i++) {
-        if (context.filters[offset][added[i]] & one) context.filters[offset][added[i]] &= zero;
+        if (bits[added[i]] & one) bits[added[i]] &= zero;
       }
 
       for (i = 0; i < removed.length; i++) {
-        if (!(context.filters[offset][removed[i]] & one))
-          context.filters[offset][removed[i]] |= one;
+        if (!(bits[removed[i]] & one))
+          bits[removed[i]] |= one;
       }
     } else {
       const newAdded = [];
@@ -513,7 +509,7 @@ export default function createDimension<T, V, A>(
           iterablesIndexCount[added[i]]++;
           iterablesIndexFilterStatus[valueIndexAdded[i]] = 0;
           if (iterablesIndexCount[added[i]] === 1) {
-            context.filters[offset][added[i]] ^= one;
+            bits[added[i]] ^= one;
             newAdded.push(added[i]);
           }
         }
@@ -523,7 +519,7 @@ export default function createDimension<T, V, A>(
           iterablesIndexCount[removed[i]]--;
           iterablesIndexFilterStatus[valueIndexRemoved[i]] = 1;
           if (iterablesIndexCount[removed[i]] === 0) {
-            context.filters[offset][removed[i]] ^= one;
+            bits[removed[i]] ^= one;
             newRemoved.push(removed[i]);
           }
         }
@@ -534,15 +530,15 @@ export default function createDimension<T, V, A>(
 
       if (filterAll) {
         for (i = 0; i < iterablesEmptyRows.length; i++) {
-          if (context.filters[offset][(k = iterablesEmptyRows[i])] & one) {
-            context.filters[offset][k] ^= one;
+          if (bits[(k = iterablesEmptyRows[i])] & one) {
+            bits[k] ^= one;
             added.push(k);
           }
         }
       } else {
         for (i = 0; i < iterablesEmptyRows.length; i++) {
-          if (!(context.filters[offset][(k = iterablesEmptyRows[i])] & one)) {
-            context.filters[offset][k] ^= one;
+          if (!(bits[(k = iterablesEmptyRows[i])] & one)) {
+            bits[k] ^= one;
             removed.push(k);
           }
         }

@@ -115,6 +115,7 @@ export default function createDimension<T, V, A>(
     let i0 = 0;
 
     if (iterable) {
+      const filterActive = refilterFunction !== undefined || refilter !== xfilterFilter.filterAll;
       t = 0;
       j = 0;
       k = [];
@@ -136,6 +137,7 @@ export default function createDimension<T, V, A>(
         if (!k.length) {
           newIterablesIndexCount[index1] = 0;
           iterablesEmptyRows.push(index1 + n0);
+          if (filterActive) context.filters[offset][index1 + n0] |= one;
           continue;
         }
         newIterablesIndexCount[index1] = k.length;
@@ -328,12 +330,7 @@ export default function createDimension<T, V, A>(
 
     if (refilterFunction) {
       refilterFunction = undefined;
-      filterIndexFunction(
-        function (d, i) {
-          return lo1 <= i && i < hi1;
-        },
-        bounds[0] === 0 && bounds[1] === values.length,
-      );
+      filterIndexFunction((d, i) => lo1 <= i && i < hi1, refilter === xfilterFilter.filterAll);
       lo0 = lo1;
       hi0 = hi1;
       return dimension;

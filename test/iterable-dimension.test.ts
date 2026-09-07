@@ -91,6 +91,21 @@ describe("iterablesEmptyRows", () => {
       ]);
     });
   });
+  describe("filtering", () => {
+    it("excludes empty records added while a filter is active", () => {
+      data.labels.filterExact("courageous");
+      data.add([{ name: "foxtrot", labels: [] }]);
+      expect(data.allFiltered()).toStrictEqual([{ name: "echo", labels: ["courageous"] }]);
+      data.labels.filterAll();
+      expect(data.allFiltered()).toHaveLength(6);
+    });
+
+    it("keeps empty records excluded when a predicate filter becomes a range filter", () => {
+      data.labels.filterFunction((label) => label.length > 0);
+      data.labels.filterRange(["a", "d"]);
+      expect(data.allFiltered()).toStrictEqual([{ name: "echo", labels: ["courageous"] }]);
+    });
+  });
 });
 
 describe("iterableDimension", () => {

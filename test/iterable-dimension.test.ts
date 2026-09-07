@@ -104,7 +104,7 @@ describe("iterablesEmptyRows", () => {
       const tagged = crossfilter([{ tags: [1, 2, 3] }, { tags: [2] }, { tags: [4] }]);
       const tags = tagged.dimension((record) => record.tags, true);
       tags.filterFunction((tag) => tag % 2 === 0);
-      expect(tags.top(Infinity)).toStrictEqual([{ tags: [4] }, { tags: [1, 2, 3] }, { tags: [2] }]);
+      expect(tags.top(Infinity)).toStrictEqual([{ tags: [4] }, { tags: [2] }, { tags: [1, 2, 3] }]);
       expect(tags.bottom(Infinity)).toStrictEqual([{ tags: [1, 2, 3] }, { tags: [2] }, { tags: [4] }]);
     });
 

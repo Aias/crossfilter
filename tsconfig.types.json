@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "module": "Preserve"
-  },
-  "include": ["type-tests/**/*.ts", "type-tests/**/*.cts"]
-}

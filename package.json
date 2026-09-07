@@ -33,55 +33,57 @@
     }
   ],
   "homepage": "https://crossfilter.github.io/crossfilter/",
-  "main": "./crossfilter.js",
+  "main": "./crossfilter.cjs",
   "module": "main.js",
-  "types": "./index.d.ts",
+  "types": "./lib/index.d.ts",
   "unpkg": "./crossfilter.min.js",
   "repository": {
     "type": "git",
     "url": "http://github.com/crossfilter/crossfilter.git"
   },
   "type": "module",
-  "dependencies": {
-    "@ranfdev/deepobj": "1.0.2"
-  },
   "devDependencies": {
     "d3": "^3.5.17",
-    "eslint": "^8.12.0",
-    "package-json-versionify": "1.0.2",
+    "oxlint": "~1.81.0",
     "rollup": "^2.78.1",
-    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "4",
-    "rollup-plugin-node-resolve": "5",
     "rollup-plugin-terser": "^7.0.2",
     "semver": "^5.7.0",
     "sinon": "^7.5.0",
+    "typescript": "~7.0.2",
     "vitest": "^0.22.1"
   },
   "scripts": {
     "benchmark": "node test/benchmark.js",
-    "build": "rollup -c rollup.config.js",
-    "clean": "rm -f crossfilter.js crossfilter.min.js",
-    "test": "vitest && eslint src/"
+    "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "clean": "rm -rf lib crossfilter.cjs crossfilter.js crossfilter.min.js main.js",
+    "lint": "oxlint --deny-warnings src index.ts type-tests rollup.config.js",
+    "prepack": "npm run build",
+    "test": "npm run build && vitest run && npm run typecheck && npm run lint",
+    "typecheck": "tsc -p tsconfig.types.json --noEmit"
   },
   "files": [
-    "index.js",
-    "main.js",
-    "src/**",
-    "index.d.ts",
+    "NOTICE",
+    "crossfilter.cjs",
     "crossfilter.js",
-    "crossfilter.min.js"
+    "crossfilter.min.js",
+    "index.d.cts",
+    "index.ts",
+    "lib",
+    "main.js",
+    "src"
   ],
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "node": true
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./main.js"
+      },
+      "require": {
+        "types": "./index.d.cts",
+        "default": "./crossfilter.cjs"
+      }
     },
-    "globals": {
-      "Uint8Array": true,
-      "Uint16Array": true,
-      "Uint32Array": true
-    },
-    "extends": "eslint:recommended"
+    "./*": "./*"
   }
 }

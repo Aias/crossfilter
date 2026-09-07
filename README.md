@@ -25,8 +25,6 @@ This package can be found under the name `crossfilter2` in npm:
      
 ## Development
 
-Install dependencies:
+Use Node.js 24 and install dependencies with `npm ci`.
 
- * `npm install`
-
-Test changes with `npm test`. Build with `npm run build` for use in the browser. You may also want to benchmark your changes with `npm run benchmark`.
+`npm test` builds with TypeScript 7, runs the JavaScript tests, checks the generated public types, and runs lint. `npm run build` emits ES module, CommonJS, and browser bundles with TypeScript declarations. `npm run benchmark` measures indexing, filtering, and removal.

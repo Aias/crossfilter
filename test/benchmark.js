@@ -1,187 +1,145 @@
-import crossfilter from '../main.js';
-import d3 from "d3"
+import crossfilter from "../main.js";
 
-var then,
-    then2;
+const firstSize = 9e4;
+const secondSize = 1e4;
+const totalSize = firstSize + secondSize;
+const barWidth = 20;
+const dayNames = ["S", "M", "T", "W", "T", "F", "S"];
 
-// Various generators for our synthetic dataset.
-var firstSize = 9e4,
-    secondSize = 1e4,
-    totalSize = firstSize + secondSize,
-    randomDayOfWeek = randomIndex([0, .6, .7, .75, .8, .76, 0]),
-    randomHourOfDay = randomIndex([0, 0, 0, 0, 0, 0, 0, .2, .5, .7, .85, .9, .8, .69, .72, .8, .78, .7, .3, 0, 0, 0, 0, 0]),
-    randomDate = randomRecentDate(randomDayOfWeek, randomHourOfDay, 13),
-    randomAmount = randomLogNormal(2.5, .5),
-    randomPayment = function() { return {date: randomDate(), amount: randomAmount()}; };
+const formatNumber = (value) => Number(value.toPrecision(2)).toLocaleString("en-US");
+const formatInteger = (value) => String(Math.trunc(value)).padStart(8);
+const formatDate = (date) => date.toLocaleDateString("en-US");
+const formatDay = (index) => `       ${dayNames[index]}`;
+const elapsed = (since) => `${formatNumber(Date.now() - since)}ms`;
+const startOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-// Various formatters to show our synthetic distributions.
-var x = d3.scale.linear().rangeRound([0, 20]),
-    dayNames = ["S", "M", "T", "W", "T", "F", "S"],
-    formatNumber = d3.format(",.02r"),
-    formatInteger = d3.format("8d"),
-    formatDate = d3.time.format("%x"),
-    formatDay = function(i) { return dayNames[i]; };
-
-// Create the synthetic records.
-then = Date.now();
-var paymentRecords = d3.range(totalSize).map(randomPayment);
-console.log("Synthesizing " + formatNumber(totalSize) + " records: " + formatNumber(Date.now() - then) + "ms.");
-
-// Slice the records into batches so we can measure incremental add.
-var firstBatch = paymentRecords.slice(0, firstSize),
-    secondBatch = paymentRecords.slice(firstSize);
-
-// Create the crossfilter and relevant dimensions and groups.
-then = then2 = Date.now();
-var payments = crossfilter(firstBatch),
-    all = payments.groupAll(),
-    amount = payments.dimension(function(d) { return d.amount; }),
-    amounts = amount.group(Math.floor),
-    date = payments.dimension(function(d) { return d.date; }),
-    dates = date.group(d3.time.day),
-    day = payments.dimension(function(d) { return d.date.getDay(); }),
-    days = day.group(),
-    hour = payments.dimension(function(d) { return d.date.getHours(); }),
-    hours = hour.group();
-console.log("Indexing " + formatNumber(firstSize) + " records: " + formatNumber(Date.now() - then) + "ms.");
-
-// Add the second batch incrementally.
-then = Date.now();
-payments.add(secondBatch);
-console.log("Indexing " + formatNumber(secondSize) + " records: " + formatNumber(Date.now() - then) + "ms.");
-console.log("Total indexing time: " + formatNumber(Date.now() - then2) + "ms.");
-console.log("");
-
-// Simulate filtering by dates.
-then = Date.now();
-var today = d3.time.day(new Date());
-for (var i = 0, n = 90, k = 0; i < n; ++i) {
-  var ti = d3.time.day.offset(today, -i);
-  for (var j = 0; j < i; ++j) {
-    var tj = d3.time.day.offset(today, -j);
-    date.filterRange([ti, tj]);
-    updateDisplay();
-  }
-}
-console.log("Filtering by date: " + formatNumber((Date.now() - then) / k) + "ms/op.");
-date.filterAll();
-
-// Simulate filtering by day.
-then = Date.now();
-for (var i = 0, n = 7, k = 0; i < n; ++i) {
-  for (var j = i; j < n; ++j) {
-    day.filterRange([i, j]);
-    updateDisplay();
-  }
-}
-console.log("Filtering by day: " + formatNumber((Date.now() - then) / k) + "ms/op.");
-day.filterAll();
-
-// Simulate filtering by hour.
-then = Date.now();
-for (var i = 0, n = 24, k = 0; i < n; ++i) {
-  for (var j = i; j < n; ++j) {
-    hour.filterRange([i, j]);
-    updateDisplay();
-  }
-}
-console.log("Filtering by hour: " + formatNumber((Date.now() - then) / k) + "ms/op.");
-hour.filterAll();
-
-// Simulate filtering by amount.
-then = Date.now();
-for (var i = 0, n = 35, k = 0; i < n; ++i) {
-  for (var j = i; j < n; ++j) {
-    amount.filterRange([i, j]);
-    updateDisplay();
-  }
-}
-console.log("Filtering by amount: " + formatNumber((Date.now() - then) / k) + "ms/op.");
-amount.filterAll();
-
-
-// Removal by predicate
-then = Date.now();
-payments.remove(function (d,i) {
-  return i % 10 === 1;
-});
-console.log("Removing " + totalSize / 10 + " records: " + formatNumber(Date.now() - then) + "ms.");
-
-
-
-console.log("");
-console.log("Day of Week:");
-x.domain([0, days.top(1)[0].value]);
-days.all().forEach(function(g) {
-  console.log("       " + formatDay(g.key) + ": " + new Array(x(g.value) + 1).join("▇"));
-});
-console.log("");
-
-console.log("Hour of Day:");
-x.domain([0, hours.top(1)[0].value]);
-hours.all().forEach(function(g) {
-  console.log(formatInteger(g.key) + ": " + new Array(x(g.value) + 1).join("▇"));
-});
-console.log("");
-
-console.log("Date:");
-x.domain([0, dates.top(1)[0].value]);
-dates.all().forEach(function(g) {
-  console.log(formatDate(g.key) + ": " + new Array(x(g.value) + 1).join("▇"));
-});
-console.log("");
-
-console.log("Amount:");
-x.domain([0, amounts.top(1)[0].value]);
-amounts.all().filter(function(g) { return x(g.value); }).forEach(function(g) {
-  console.log(formatInteger(g.key) + ": " + new Array(x(g.value) + 1).join("▇"));
-});
-console.log("");
-
-// Simulates updating the display whenever the filters change.
-function updateDisplay() {
-  dates.all(); // update the date chart
-  days.all(); // update the day-of-week chart
-  hours.all(); // update the hour-of-day chart
-  amounts.all(); // update the amount histogram
-  all.value(); // update the summary totals
-  date.top(40); // update the payment list
-  ++k; // count frame rate
+function addDays(date, days) {
+  const shifted = new Date(date);
+  shifted.setDate(shifted.getDate() + days);
+  return shifted;
 }
 
-// Returns a function that returns random index in [0, distribution.length -
-// 1], based on the relative values in the specified distribution. Internally,
-// the distribution is converted to a normalized cumulative distribution in
-// [0, 1], and then a uniform random value is used with bisection.
 function randomIndex(distribution) {
-  var k = 1 / d3.sum(distribution), s = 0;
-  for (var i = 0, n = distribution.length; i < n; ++i) {
-    s = (distribution[i] = distribution[i] * k + s);
-  }
-  return function() {
-    return d3.bisectLeft(distribution, Math.random());
-  };
+  const total = distribution.reduce((sum, weight) => sum + weight, 0);
+  let cumulative = 0;
+  const thresholds = distribution.map((weight) => (cumulative += weight / total));
+  return () => crossfilter.bisect.left(thresholds, Math.random(), 0, thresholds.length);
 }
 
-// Returns a function that returns random values with a log-normal
-// distribution, with the specified mean and deviation.
-function randomLogNormal(µ, σ) {
-  var random = d3.random.normal();
-  return function() {
-    return Math.exp(µ + σ * random());
-  };
+function randomNormal() {
+  let uniform = 0;
+  while (uniform === 0) uniform = Math.random();
+  return Math.sqrt(-2 * Math.log(uniform)) * Math.cos(2 * Math.PI * Math.random());
 }
 
-// Returns a function that returns random dates, built on top of the specified
-// random day-of-week and hour-of-day generators. The minutes, seconds, and
-// milliseconds of the return dates are uniform random; as is the week of the
-// returned date, which is between now and some *weeks* ago.
+function randomLogNormal(mean, deviation) {
+  return () => Math.exp(mean + deviation * randomNormal());
+}
+
 function randomRecentDate(randomDayOfWeek, randomHourOfDay, weeks) {
-  var now = Date.now();
-  return function() {
-    var d = d3.time.week.offset(new Date(), -Math.floor(Math.random() * weeks));
-    d.setDate(d.getDate() + randomDayOfWeek() - d.getDay());
-    d.setHours(randomHourOfDay(), Math.random() * 60, Math.random() * 60, Math.random() * 1000);
-    return d;
+  return () => {
+    const date = addDays(new Date(), -7 * Math.floor(Math.random() * weeks));
+    date.setDate(date.getDate() + randomDayOfWeek() - date.getDay());
+    date.setHours(randomHourOfDay(), Math.random() * 60, Math.random() * 60, Math.random() * 1000);
+    return date;
   };
 }
+
+const randomDayOfWeek = randomIndex([0, 0.6, 0.7, 0.75, 0.8, 0.76, 0]);
+const randomHourOfDay = randomIndex([
+  0, 0, 0, 0, 0, 0, 0, 0.2, 0.5, 0.7, 0.85, 0.9, 0.8, 0.69, 0.72, 0.8, 0.78, 0.7, 0.3, 0, 0, 0, 0, 0,
+]);
+const randomDate = randomRecentDate(randomDayOfWeek, randomHourOfDay, 13);
+const randomAmount = randomLogNormal(2.5, 0.5);
+
+let started = Date.now();
+const paymentRecords = Array.from({ length: totalSize }, () => ({
+  date: randomDate(),
+  amount: randomAmount(),
+}));
+console.log(`Synthesizing ${formatNumber(totalSize)} records: ${elapsed(started)}.`);
+
+const firstBatch = paymentRecords.slice(0, firstSize);
+const secondBatch = paymentRecords.slice(firstSize);
+
+started = Date.now();
+const indexingStarted = started;
+const payments = crossfilter(firstBatch);
+const all = payments.groupAll();
+const amount = payments.dimension((d) => d.amount);
+const amounts = amount.group(Math.floor);
+const date = payments.dimension((d) => d.date);
+const dates = date.group(startOfDay);
+const day = payments.dimension((d) => d.date.getDay());
+const days = day.group();
+const hour = payments.dimension((d) => d.date.getHours());
+const hours = hour.group();
+console.log(`Indexing ${formatNumber(firstSize)} records: ${elapsed(started)}.`);
+
+started = Date.now();
+payments.add(secondBatch);
+console.log(`Indexing ${formatNumber(secondSize)} records: ${elapsed(started)}.`);
+console.log(`Total indexing time: ${elapsed(indexingStarted)}.`);
+console.log("");
+
+let frames = 0;
+function updateDisplay() {
+  dates.all();
+  days.all();
+  hours.all();
+  amounts.all();
+  all.value();
+  date.top(40);
+  frames++;
+}
+
+function measureFiltering(label, dimension, run) {
+  frames = 0;
+  const filteringStarted = Date.now();
+  run();
+  console.log(`Filtering by ${label}: ${formatNumber((Date.now() - filteringStarted) / frames)}ms/op.`);
+  dimension.filterAll();
+}
+
+function filterRanges(dimension, count) {
+  for (let i = 0; i < count; i++) {
+    for (let j = i; j < count; j++) {
+      dimension.filterRange([i, j]);
+      updateDisplay();
+    }
+  }
+}
+
+const today = startOfDay(new Date());
+measureFiltering("date", date, () => {
+  for (let i = 0; i < 90; i++) {
+    const from = addDays(today, -i);
+    for (let j = 0; j < i; j++) {
+      date.filterRange([from, addDays(today, -j)]);
+      updateDisplay();
+    }
+  }
+});
+measureFiltering("day", day, () => filterRanges(day, 7));
+measureFiltering("hour", hour, () => filterRanges(hour, 24));
+measureFiltering("amount", amount, () => filterRanges(amount, 35));
+
+started = Date.now();
+payments.remove((d, i) => i % 10 === 1);
+console.log(`Removing ${totalSize / 10} records: ${elapsed(started)}.`);
+console.log("");
+
+function printHistogram(title, group, formatKey, showEmpty = true) {
+  const max = group.top(1)[0].value;
+  console.log(title);
+  for (const { key, value } of group.all()) {
+    const width = Math.round((value / max) * barWidth);
+    if (width > 0 || showEmpty) console.log(`${formatKey(key)}: ${"▇".repeat(width)}`);
+  }
+  console.log("");
+}
+
+printHistogram("Day of Week:", days, formatDay);
+printHistogram("Hour of Day:", hours, formatInteger);
+printHistogram("Date:", dates, formatDate);
+printHistogram("Amount:", amounts, formatInteger, false);

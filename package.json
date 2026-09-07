@@ -44,7 +44,6 @@
   "type": "module",
   "packageManager": "pnpm@12.3.4",
   "devDependencies": {
-    "d3": "^3.5.17",
     "oxlint": "~1.81.0",
     "rollup": "^2.78.1",
     "rollup-plugin-json": "4",

@@ -3,6 +3,7 @@ import xfilterFilter from "./filter.js";
 import cr_identity from "./identity.js";
 import bisect from "./bisect.js";
 import permute from "./permute.js";
+import sortIndexByValue from "./sort.js";
 import createGroup, { createDimensionGroupAll } from "./group.js";
 import type { Group } from "./group.js";
 import type { GroupAll } from "./groupAll.js";
@@ -68,12 +69,7 @@ export default function createDimension<T, V, A>(
   let iterablesIndexCount: number[] = [];
   let iterablesIndexFilterStatus: number[] = [];
   const iterablesEmptyRows: number[] = [];
-  const sortRange = (n: number) =>
-    indexRange(n).sort((A, B) => {
-      const a = newValues[A];
-      const b = newValues[B];
-      return a < b ? -1 : a > b ? 1 : A - B;
-    });
+  const sortRange = (n: number) => sortIndexByValue(newValues, n);
   let refilter: (values: readonly V[]) => [number, number] = xfilterFilter.filterAll;
   let refilterFunction: FilterPredicate<V> | undefined;
   let filterValue: FilterValue<V> | undefined;

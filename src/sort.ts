@@ -6,7 +6,7 @@ const digitBits = 16;
 const digitCount = 1 << digitBits;
 const digitMask = digitCount - 1;
 
-function numericKeys(values: readonly unknown[], n: number) {
+export function numericKeys(values: readonly unknown[], n: number) {
   const keys = new Float64Array(n);
   for (let i = 0; i < n; i++) {
     const value = values[i];

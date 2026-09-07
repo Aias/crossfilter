@@ -3,7 +3,7 @@ import xfilterFilter from "./filter.js";
 import cr_identity from "./identity.js";
 import bisect from "./bisect.js";
 import permute from "./permute.js";
-import sortIndexByValue from "./sort.js";
+import sortIndexByValue, { numericKeys } from "./sort.js";
 import createGroup, { createDimensionGroupAll } from "./group.js";
 import type { Group } from "./group.js";
 import type { GroupAll } from "./groupAll.js";
@@ -239,9 +239,15 @@ export default function createDimension<T, V, A>(
       }
     }
 
+    const oldKeys = numericKeys(oldValues, n0);
+    const newKeys = numericKeys(newValues, n1);
+    const oldFirst =
+      oldKeys && newKeys
+        ? (old: number, next: number) => oldKeys[old] <= newKeys[next]
+        : (old: number, next: number) => oldValues[old] <= newValues[next];
     let index5 = 0;
     for (; i0 < n0 && i1 < n1; ++index5) {
-      if (oldValues[i0] < newValues[i1]) {
+      if (oldFirst(i0, i1)) {
         values[index5] = oldValues[i0];
         if (iterable) iterablesIndexFilterStatus[index5] = oldIterablesIndexFilterStatus[i0];
         index[index5] = oldIndex[i0++];

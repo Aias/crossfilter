@@ -1,5 +1,5 @@
 {
-  "name": "crossfilter2",
+  "name": "@aias/crossfilter",
   "version": "1.5.4",
   "description": "Fast multidimensional filtering for coordinated views.",
   "license": "Apache-2.0",
@@ -9,16 +9,18 @@
     "crossfilter"
   ],
   "author": {
-    "name": "Mike Bostock",
-    "url": "http://bost.ocks.org/mike"
+    "name": "Nick Trombley",
+    "url": "https://github.com/Aias"
   },
   "contributors": [
     {
+      "name": "Mike Bostock",
+      "url": "https://bost.ocks.org/mike"
+    },
+    {
       "name": "Jason Davies",
-      "url": "http://www.jasondavies.com/"
-    }
-  ],
-  "maintainers": [
+      "url": "https://www.jasondavies.com/"
+    },
     {
       "name": "Gordon Woodhull",
       "url": "https://github.com/gordonwoodhull"
@@ -32,12 +34,16 @@
       "url": "https://github.com/esjewett"
     }
   ],
-  "homepage": "https://crossfilter.github.io/crossfilter/",
+  "homepage": "https://github.com/Aias/crossfilter",
   "types": "./dist/index.d.ts",
   "unpkg": "./dist/crossfilter.min.js",
   "repository": {
     "type": "git",
-    "url": "http://github.com/crossfilter/crossfilter.git"
+    "url": "git+https://github.com/Aias/crossfilter.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "type": "module",
   "packageManager": "pnpm@12.3.4",
@@ -53,12 +59,14 @@
     }
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "~0.18.5",
     "@testing-library/react": "~16.3.3",
     "@types/react": "~19.2.18",
     "@types/react-dom": "~19.2.7",
     "fast-check": "~4.9.0",
     "happy-dom": "~20.14.0",
     "oxlint": "~1.81.0",
+    "publint": "~0.3.24",
     "react": "~19.2.8",
     "react-dom": "~19.2.8",
     "tsdown": "~0.23.0",

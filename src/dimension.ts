@@ -25,7 +25,7 @@ export interface Dimension<T, V, A = V> {
   filterFunction(predicate: FilterPredicate<V>): Dimension<T, V, A>;
   filterAll(): Dimension<T, V, A>;
   currentFilter(): FilterValue<V> | undefined;
-  hasCurrentFilter(): boolean | undefined;
+  hasCurrentFilter(): boolean;
   top(k: number, offset?: number): T[];
   bottom(k: number, offset?: number): T[];
   group<K>(key: (value: V) => K): Group<T, K, number>;
@@ -73,7 +73,7 @@ export default function createDimension<T, V, A>(
   let refilter: (values: readonly V[]) => [number, number] = xfilterFilter.filterAll;
   let refilterFunction: FilterPredicate<V> | undefined;
   let filterValue: FilterValue<V> | undefined;
-  let filterValuePresent: boolean | undefined;
+  let filterValuePresent = false;
   const indexListeners: IndexListener<V>[] = [];
   const dimensionGroups: { dispose(): unknown }[] = [];
   let lo0 = 0;

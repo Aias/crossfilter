@@ -8,7 +8,7 @@ export type FilterListener = (
   removed: number[],
   notFilter?: boolean,
 ) => void;
-export type DataListener<T> = (newData: T[], n0: number, n1: number) => void;
+export type DataListener<T> = (newData: readonly T[], n0: number, n1: number) => void;
 export type RemoveListener = (newIndex: number[]) => void;
 export type IndexListener<V> = (newValues: V[], newIndex: number[], n0: number, n1: number) => void;
 

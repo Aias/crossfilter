@@ -107,7 +107,7 @@ export default function createDimension<T, V, A>(
   preAdd(context.data, 0, context.n);
   postAdd(context.data, 0, context.n);
 
-  function preAdd(newData: T[], n0: number, n1: number) {
+  function preAdd(newData: readonly T[], n0: number, n1: number) {
     let newIterablesIndexCount: number[] = [];
     let newIterablesIndexFilterStatus: number[] = [];
     let k: ArrayLike<V> = [];
@@ -270,7 +270,7 @@ export default function createDimension<T, V, A>(
     hi0 = bounds[1];
   }
 
-  function postAdd(newData: T[], n0: number, n1: number) {
+  function postAdd(newData: readonly T[], n0: number, n1: number) {
     groupState.values = values;
     groupState.index = index;
     indexListeners.forEach(function (l) {

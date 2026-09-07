@@ -18,16 +18,35 @@ export interface DimensionId {
 
 type IterableValue<V> = V extends ArrayLike<infer Item> ? Item : never;
 type DimensionValue<V, I extends boolean> = I extends true ? IterableValue<V> : V;
+type NormalizedPath<P extends string> = P extends `${infer Head}[${infer Key}]${infer Rest}`
+  ? `${Head}.${Key}${NormalizedPath<Rest>}`
+  : P;
+type Step<T, K extends string> = K extends keyof T
+  ? T[K]
+  : T extends readonly unknown[]
+    ? K extends `${number}`
+      ? T[number]
+      : unknown
+    : unknown;
+type Called<V> = V extends (...args: never[]) => infer Result ? Result : V;
+type Walk<T, P extends string> = P extends `${infer Head}.${infer Rest}`
+  ? Walk<Step<T, Head>, Rest>
+  : Called<Step<T, P>>;
+export type PathValue<T, P extends string> = Walk<T, NormalizedPath<P>>;
 
 export interface Crossfilter<T> {
-  add(records: T[]): Crossfilter<T>;
+  add(records: readonly T[]): Crossfilter<T>;
   remove(predicate?: (record: T, index: number) => boolean): void;
   dimension<V>(value: (record: T) => V, iterable?: false): DimensionType<T, V>;
   dimension<V extends ArrayLike<unknown>, I extends boolean>(
     value: (record: T) => V,
     iterable: I,
   ): DimensionType<T, DimensionValue<V, I>, V>;
-  dimension(value: string, iterable?: boolean): DimensionType<T, unknown>;
+  dimension<P extends string, V = PathValue<T, P>>(value: P, iterable?: false): DimensionType<T, V>;
+  dimension<P extends string, I extends boolean, V = PathValue<T, P>>(
+    value: P,
+    iterable: I,
+  ): DimensionType<T, DimensionValue<V, I>, V>;
   groupAll(): GroupAllType<T, number>;
   size(): number;
   all(): T[];
@@ -36,7 +55,7 @@ export interface Crossfilter<T> {
   isElementFiltered(index: number, ignoreDimensions?: readonly DimensionId[]): boolean;
 }
 
-function crossfilter<T>(records?: T[]): Crossfilter<T> {
+function crossfilter<T>(records?: readonly T[]): Crossfilter<T> {
   const callbacks: ((event: EventName) => void)[] = [];
   const state: CrossfilterState<T> = {
     data: [],
@@ -59,7 +78,7 @@ function crossfilter<T>(records?: T[]): Crossfilter<T> {
     isElementFiltered,
   };
 
-  function add(newData: T[]) {
+  function add(newData: readonly T[]) {
     const n0 = state.n;
     const n1 = newData.length;
     if (n1) {
@@ -118,7 +137,14 @@ function crossfilter<T>(records?: T[]): Crossfilter<T> {
     value: (record: T) => V,
     iterable: I,
   ): DimensionType<T, DimensionValue<V, I>, V>;
-  function dimension(value: string, iterable?: boolean): DimensionType<T, unknown>;
+  function dimension<P extends string, V = PathValue<T, P>>(
+    value: P,
+    iterable?: false,
+  ): DimensionType<T, V>;
+  function dimension<P extends string, I extends boolean, V = PathValue<T, P>>(
+    value: P,
+    iterable: I,
+  ): DimensionType<T, DimensionValue<V, I>, V>;
   function dimension(value: ((record: T) => unknown) | string, iterable = false) {
     const accessor = typeof value === "string" ? (record: T) => result(record, value) : value;
     if (iterable) {

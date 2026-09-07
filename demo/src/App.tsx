@@ -1,12 +1,13 @@
-import { Suspense, use, useSyncExternalStore } from "react";
+import { Suspense, use } from "react";
+import { useCrossfilter, useDimensionTop, useGroupValue } from "crossfilter2/react";
 import { format } from "d3-format";
 import BarChart from "./BarChart.tsx";
 import FlightList from "./FlightList.tsx";
-import { loadModel } from "./flights.ts";
-import type { Filters, FlightsModel } from "./flights.ts";
+import { createModel, loadFlights } from "./flights.ts";
+import type { Filters, Flight } from "./flights.ts";
 
 const formatNumber = format(",d");
-const modelPromise = loadModel();
+const flightsPromise = loadFlights();
 const clearedFilters: Filters = { hour: null, delay: null, distance: null, date: null };
 
 export default function App() {
@@ -42,7 +43,7 @@ export default function App() {
         you can use to weigh different hypotheses.
       </p>
       <Suspense fallback={<p>Loading flights…</p>}>
-        <Dashboard modelPromise={modelPromise} />
+        <Dashboard records={use(flightsPromise)} />
       </Suspense>
       <footer>
         <span className="license">
@@ -55,10 +56,11 @@ export default function App() {
   );
 }
 
-function Dashboard({ modelPromise }: { modelPromise: Promise<FlightsModel> }) {
-  const model = use(modelPromise);
-  useSyncExternalStore(model.store.subscribe, model.store.getSnapshot);
+function Dashboard({ records }: { records: Flight[] }) {
+  const model = useCrossfilter(records, createModel);
   const { all, charts, date, flights } = model;
+  const selected = useGroupValue(flights, all);
+  const recent = useDimensionTop(flights, date, 40);
   const question = (filters: Partial<Filters>, label: string) => (
     <button
       type="button"
@@ -86,15 +88,15 @@ function Dashboard({ modelPromise }: { modelPromise: Promise<FlightsModel> }) {
         {question({ hour: [4, 7] }, "mornings")} and {question({ hour: [21, 24] }, "nights")}?
       </p>
       <div className="charts">
-        <BarChart spec={charts.hour} />
-        <BarChart spec={charts.delay} />
-        <BarChart spec={charts.distance} />
-        <BarChart spec={charts.date} />
+        <BarChart flights={flights} spec={charts.hour} />
+        <BarChart flights={flights} spec={charts.delay} />
+        <BarChart flights={flights} spec={charts.distance} />
+        <BarChart flights={flights} spec={charts.date} />
       </div>
       <aside className="totals">
-        {formatNumber(all.value())} of {formatNumber(flights.size())} flights selected.
+        {formatNumber(selected)} of {formatNumber(flights.size())} flights selected.
       </aside>
-      <FlightList flights={date.top(40)} />
+      <FlightList flights={recent} />
     </>
   );
 }

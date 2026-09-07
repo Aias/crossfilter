@@ -52,9 +52,42 @@ const unsubscribe = payments.onChange((event) => {
 });
 ```
 
+## React
+
+`crossfilter2/react` bridges crossfilter's synchronous change events to React through `useSyncExternalStore`. React is an optional peer dependency, so the core package stays framework-free.
+
+```tsx
+import { useCrossfilter, useDimensionFilter, useGroupAll, useGroupValue } from "crossfilter2/react";
+
+function Dashboard({ records }: { records: Payment[] }) {
+  const { payments, amount, byType, total } = useCrossfilter(records, (payments) => {
+    const amount = payments.dimension((payment) => payment.amount);
+    const type = payments.dimension((payment) => payment.type);
+    return {
+      payments,
+      amount,
+      byType: type.group(),
+      total: payments.groupAll().reduceSum((payment) => payment.amount),
+    };
+  });
+  const bins = useGroupAll(payments, byType);
+  const sum = useGroupValue(payments, total);
+  const [range, setRange] = useDimensionFilter(payments, amount);
+  return (
+    <>
+      <button onClick={() => setRange([10, 50])}>Between 10 and 50</button>
+      <button onClick={() => setRange(null)}>Clear</button>
+      <p>{sum} across {bins.length} types{range ? " (filtered)" : ""}</p>
+    </>
+  );
+}
+```
+
+`useCrossfilter` builds the crossfilter and everything derived from it once per component, which keeps dimensions and groups from being created twice under Strict Mode, and replaces the records whenever the array identity changes. The other hooks subscribe to an instance and return fresh snapshots after every filter, add, or remove: `useGroupAll`, `useGroupTop`, `useGroupValue`, `useDimensionTop`, `useDimensionBottom`, and `useDimensionFilter`. Components that read the instance directly in render can call `useCrossfilterVersion` to subscribe.
+
 ## Demo
 
-The airline on-time performance example from the original project lives in `demo/` as a React application. It consumes the `crossfilter2` package through the workspace, builds its charts on the modular d3 packages, and treats the crossfilter as an external store through `useSyncExternalStore`. Run `pnpm run demo` to build the library and start the Vite dev server.
+The airline on-time performance example from the original project lives in `demo/` as a React application. It consumes the `crossfilter2` package through the workspace, builds its charts on the modular d3 packages, and drives every chart and list through the `crossfilter2/react` hooks. Run `pnpm run demo` to build the library and start the Vite dev server.
 
 ## Development
 

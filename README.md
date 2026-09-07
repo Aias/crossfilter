@@ -83,7 +83,7 @@ function Dashboard({ records }: { records: Payment[] }) {
 }
 ```
 
-`useCrossfilter` builds the crossfilter and everything derived from it once per component, which keeps dimensions and groups from being created twice under Strict Mode, and replaces the records whenever the array identity changes. The other hooks subscribe to an instance and return fresh snapshots after every filter, add, or remove: `useGroupAll`, `useGroupTop`, `useGroupValue`, `useDimensionTop`, `useDimensionBottom`, and `useDimensionFilter`. Components that read the instance directly in render can call `useCrossfilterVersion` to subscribe.
+`useCrossfilter` builds the crossfilter and everything derived from it once per component, which keeps dimensions and groups from being created twice under Strict Mode, and replaces the records whenever the array identity changes. The other hooks subscribe to an instance and return fresh snapshots after every filter, add, or remove: `useGroupAll`, `useGroupTop`, `useGroupValue`, `useDimensionTop`, `useDimensionBottom`, and `useDimensionFilter`. Components that need anything else from the instance read it through `useCrossfilterSnapshot(source, read)`, which reruns `read` after every change. Every hook reads inside its `useSyncExternalStore` snapshot, so the React Compiler treats the results as reactive values instead of caching them on the dimension or group identity. `useCrossfilterVersion` exposes the raw change counter for effects that react to changes without reading anything.
 
 ## Demo
 

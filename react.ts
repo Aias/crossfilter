@@ -1,10 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import crossfilter from "./index.js";
 import type { Crossfilter, Dimension, FilterValue, Group, GroupAll, Grouping } from "./index.js";
 
 interface ChangeStore {
   subscribe(listener: () => void): () => void;
   getSnapshot(): number;
+}
+
+interface Snapshot<R> {
+  version: number;
+  read: () => R;
+  value: R;
 }
 
 const stores = new WeakMap<object, ChangeStore>();
@@ -36,6 +42,21 @@ export function useCrossfilterVersion<T>(source: Crossfilter<T>): number {
   return useSyncExternalStore(store.subscribe, store.getSnapshot);
 }
 
+export function useCrossfilterSnapshot<T, R>(source: Crossfilter<T>, read: () => R): R {
+  const store = storeFor(source);
+  const snapshot = useRef<Snapshot<R>>(null);
+  return useSyncExternalStore(store.subscribe, () => {
+    const version = store.getSnapshot();
+    const current = snapshot.current;
+    if (current !== null && current.version === version && current.read === read) {
+      return current.value;
+    }
+    const value = read();
+    snapshot.current = { version, read, value };
+    return value;
+  });
+}
+
 export function useCrossfilter<T, Model>(
   records: readonly T[],
   build: (source: Crossfilter<T>) => Model,
@@ -58,8 +79,8 @@ export function useGroupAll<T, K, V>(
   source: Crossfilter<T>,
   group: Group<T, K, V>,
 ): Grouping<K, V>[] {
-  const version = useCrossfilterVersion(source);
-  return useMemo(() => group.all().slice(), [group, version]);
+  const read = useCallback(() => group.all().slice(), [group]);
+  return useCrossfilterSnapshot(source, read);
 }
 
 export function useGroupTop<T, K, V>(
@@ -67,13 +88,13 @@ export function useGroupTop<T, K, V>(
   group: Group<T, K, V>,
   k: number,
 ): Grouping<K, V>[] {
-  const version = useCrossfilterVersion(source);
-  return useMemo(() => group.top(k), [group, k, version]);
+  const read = useCallback(() => group.top(k), [group, k]);
+  return useCrossfilterSnapshot(source, read);
 }
 
 export function useGroupValue<T, V>(source: Crossfilter<T>, group: GroupAll<T, V>): V {
-  useCrossfilterVersion(source);
-  return group.value();
+  const read = useCallback(() => group.value(), [group]);
+  return useCrossfilterSnapshot(source, read);
 }
 
 export function useDimensionTop<T, V, A>(
@@ -82,8 +103,8 @@ export function useDimensionTop<T, V, A>(
   k: number,
   offset = 0,
 ): T[] {
-  const version = useCrossfilterVersion(source);
-  return useMemo(() => dimension.top(k, offset), [dimension, k, offset, version]);
+  const read = useCallback(() => dimension.top(k, offset), [dimension, k, offset]);
+  return useCrossfilterSnapshot(source, read);
 }
 
 export function useDimensionBottom<T, V, A>(
@@ -92,8 +113,8 @@ export function useDimensionBottom<T, V, A>(
   k: number,
   offset = 0,
 ): T[] {
-  const version = useCrossfilterVersion(source);
-  return useMemo(() => dimension.bottom(k, offset), [dimension, k, offset, version]);
+  const read = useCallback(() => dimension.bottom(k, offset), [dimension, k, offset]);
+  return useCrossfilterSnapshot(source, read);
 }
 
 export type DimensionFilterSetter<V> = (value?: FilterValue<V> | null) => void;
@@ -102,12 +123,12 @@ export function useDimensionFilter<T, V, A>(
   source: Crossfilter<T>,
   dimension: Dimension<T, V, A>,
 ): [FilterValue<V> | undefined, DimensionFilterSetter<V>] {
-  useCrossfilterVersion(source);
+  const read = useCallback(() => dimension.currentFilter(), [dimension]);
   const setFilter = useCallback<DimensionFilterSetter<V>>(
     (value) => {
       dimension.filter(value);
     },
     [dimension],
   );
-  return [dimension.currentFilter(), setFilter];
+  return [useCrossfilterSnapshot(source, read), setFilter];
 }

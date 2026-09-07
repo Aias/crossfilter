@@ -2,7 +2,7 @@ import crossfilter from "../main.js";
 import { describe, it, expect, beforeEach } from "vitest";
 import assert from "assert";
 import sinon from "sinon";
-import d3 from "d3";
+const range = (start, stop) => Array.from({ length: stop - start }, (_, i) => start + i);
 
 var testData = [
   {
@@ -1892,7 +1892,7 @@ describe("crossfilter", () => {
       });
 
       it("cardinality may be greater than 256", function () {
-        var data = crossfilter(d3.range(256).concat(256, 256)),
+        var data = crossfilter(range(0, 256).concat(256, 256)),
           index = data.dimension(function (d) {
             return d;
           }),
@@ -1903,7 +1903,7 @@ describe("crossfilter", () => {
       });
 
       it("cardinality may be greater than 65536", function () {
-        var data = crossfilter(d3.range(65536).concat(65536, 65536)),
+        var data = crossfilter(range(0, 65536).concat(65536, 65536)),
           index = data.dimension(function (d) {
             return d;
           }),
@@ -2866,12 +2866,12 @@ describe("crossfilter", () => {
           return +d;
         }),
         foos = foo.group();
-      data.add(d3.range(0, 256));
+      data.add(range(0, 256));
       assert.deepStrictEqual(
         foos.all().map(function (d) {
           return d.key;
         }),
-        d3.range(0, 256)
+        range(0, 256)
       );
       assert(
         foos.all().every(function (d) {
@@ -2881,12 +2881,12 @@ describe("crossfilter", () => {
       data.add([128]);
       assert.deepStrictEqual(foos.top(1), [{ key: 128, value: 2 }]);
       bar.filterExact(0);
-      data.add(d3.range(-256, 0));
+      data.add(range(-256, 0));
       assert.deepStrictEqual(
         foos.all().map(function (d) {
           return d.key;
         }),
-        d3.range(-256, 256)
+        range(-256, 256)
       );
       assert.deepStrictEqual(foos.top(1), [{ key: 0, value: 1 }]);
     });
@@ -2905,7 +2905,7 @@ describe("crossfilter", () => {
       bar.filterExact(1);
       for (var i = 0; i < 1000; i++) {
         data.add(
-          d3.range(10).map(function (d) {
+          range(0, 10).map(function (d) {
             return { foo: i + d / 10, bar: i % 4, baz: d + i * 10 };
           })
         );
@@ -4234,8 +4234,7 @@ describe("crossfilter", () => {
 
       it("cardinality may be greater than 256", function () {
         var data = crossfilter(
-            d3
-              .range(256)
+            range(0, 256)
               .concat(256, 256)
               .map(function (d) {
                 return { tags: [d, d + 1, d + 2] };
@@ -4255,8 +4254,7 @@ describe("crossfilter", () => {
 
       it("cardinality may be greater than 65536", function () {
         var data = crossfilter(
-            d3
-              .range(65536)
+            range(0, 65536)
               .concat(65536, 65536)
               .map(function (d) {
                 return { tags: [d, d + 1, d + 2] };

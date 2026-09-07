@@ -134,6 +134,24 @@ describe("crossfilter against a reference model", () => {
             expect(ids(bottom)).toEqual(ids(expected));
             expect(isSortedBy(bottom, dimension, 1)).toBe(true);
           }
+          const visibleForTagPairs = rows.filter((row) => selectedExcept(row, "tags"));
+          const tagPairs = visibleForTagPairs.flatMap((row) =>
+            row.tags.filter((tag) => passes(tag, filters.tags)).map((tag) => ({ tag, id: row.id })),
+          );
+          const emptyRows =
+            filters.tags.kind === "none"
+              ? visibleForTagPairs.filter((row) => row.tags.length === 0).map((row) => row.id)
+              : [];
+          const ascending = tagPairs
+            .slice()
+            .sort((x, y) => x.tag - y.tag || x.id - y.id)
+            .map((pair) => pair.id);
+          expect(dimensions.tags.top(Infinity).map((row) => row.id)).toEqual(
+            ascending.slice().reverse().concat(emptyRows),
+          );
+          expect(dimensions.tags.bottom(Infinity).map((row) => row.id)).toEqual(
+            emptyRows.concat(ascending),
+          );
           const visibleForA = rows.filter((row) => selectedExcept(row, "a"));
           expect(countA.all()).toEqual(
             countsByKey(

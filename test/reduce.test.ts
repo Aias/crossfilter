@@ -1,5 +1,5 @@
-import crossfilter from "../main.js";
 import { describe, expect, it } from "vitest";
+import crossfilter from "../index.ts";
 
 describe("reducer configuration", () => {
   it("keeps saved group methods connected to the active reducer", () => {
@@ -57,7 +57,7 @@ describe("reducer configuration", () => {
     expect(
       dimension
         .group()
-        .reduceSum((record) => record.amount)
+        .reduceSum((record) => Number(record.amount))
         .all(),
     ).toEqual([
       { key: 1, value: 4 },
@@ -66,13 +66,13 @@ describe("reducer configuration", () => {
     expect(
       dimension
         .groupAll()
-        .reduceSum((record) => record.amount)
+        .reduceSum((record) => Number(record.amount))
         .value(),
     ).toBe(11);
     expect(
       source
         .groupAll()
-        .reduceSum((record) => record.amount)
+        .reduceSum((record) => Number(record.amount))
         .value(),
     ).toBe(11);
   });

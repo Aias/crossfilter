@@ -48,20 +48,18 @@
     "rollup": "^2.78.1",
     "rollup-plugin-json": "4",
     "rollup-plugin-terser": "^7.0.2",
-    "semver": "^5.7.0",
-    "sinon": "^7.5.0",
     "typescript": "~7.0.2",
-    "vitest": "^0.22.1"
+    "vitest": "~5.0.0"
   },
   "scripts": {
-    "benchmark": "node test/benchmark.js",
+    "benchmark": "vitest bench --run --reporter=verbose",
     "build": "pnpm run clean && tsc && rollup -c rollup.config.js",
     "clean": "rm -rf lib crossfilter.cjs crossfilter.js crossfilter.min.js main.js",
     "demo": "pnpm run build && pnpm --filter crossfilter-demo dev",
-    "lint": "oxlint --deny-warnings src index.ts type-tests demo/src rollup.config.js",
+    "lint": "oxlint --deny-warnings src index.ts test demo/src vitest.config.ts rollup.config.js",
     "prepack": "pnpm run build",
     "test": "pnpm run build && vitest run && pnpm run typecheck && pnpm --filter crossfilter-demo check && pnpm run lint",
-    "typecheck": "tsc -p tsconfig.types.json --noEmit"
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "files": [
     "NOTICE",

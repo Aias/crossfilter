@@ -18,7 +18,7 @@ export type FilterValue<V> = V | null | [V, V] | FilterPredicate<V>;
 
 export interface Dimension<T, V, A = V> {
   accessor(record: T): A;
-  filter(value: FilterValue<V> | null | undefined): Dimension<T, V, A>;
+  filter(value?: FilterValue<V> | null): Dimension<T, V, A>;
   filterExact(value: V | null | undefined): Dimension<T, V, A>;
   filterRange(range: [V, V]): Dimension<T, V, A>;
   filterFunction(predicate: FilterPredicate<V>): Dimension<T, V, A>;

@@ -33,10 +33,8 @@
     }
   ],
   "homepage": "https://crossfilter.github.io/crossfilter/",
-  "main": "./crossfilter.cjs",
-  "module": "main.js",
-  "types": "./lib/index.d.ts",
-  "unpkg": "./crossfilter.min.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/crossfilter.min.js",
   "repository": {
     "type": "git",
     "url": "http://github.com/crossfilter/crossfilter.git"
@@ -45,43 +43,30 @@
   "packageManager": "pnpm@12.3.4",
   "devDependencies": {
     "oxlint": "~1.81.0",
-    "rollup": "^2.78.1",
-    "rollup-plugin-json": "4",
-    "rollup-plugin-terser": "^7.0.2",
+    "tsdown": "~0.23.0",
     "typescript": "~7.0.2",
     "vitest": "~5.0.0"
   },
   "scripts": {
     "benchmark": "vitest bench --run --reporter=verbose",
-    "build": "pnpm run clean && tsc && rollup -c rollup.config.js",
-    "clean": "rm -rf lib crossfilter.cjs crossfilter.js crossfilter.min.js main.js",
+    "build": "tsdown",
+    "clean": "rm -rf dist",
     "demo": "pnpm run build && pnpm --filter crossfilter-demo dev",
-    "lint": "oxlint --deny-warnings src index.ts test demo/src vitest.config.ts rollup.config.js",
+    "lint": "oxlint --deny-warnings src index.ts test demo/src tsdown.config.ts vitest.config.ts",
     "prepack": "pnpm run build",
     "test": "pnpm run build && vitest run && pnpm run typecheck && pnpm --filter crossfilter-demo check && pnpm run lint",
-    "typecheck": "tsc -p tsconfig.test.json"
+    "typecheck": "tsc"
   },
   "files": [
     "NOTICE",
-    "crossfilter.cjs",
-    "crossfilter.js",
-    "crossfilter.min.js",
-    "index.d.cts",
+    "dist",
     "index.ts",
-    "lib",
-    "main.js",
     "src"
   ],
   "exports": {
     ".": {
-      "import": {
-        "types": "./lib/index.d.ts",
-        "default": "./main.js"
-      },
-      "require": {
-        "types": "./index.d.cts",
-        "default": "./crossfilter.cjs"
-      }
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   }
 }

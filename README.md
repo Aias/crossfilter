@@ -27,7 +27,7 @@ This package can be found under the name `crossfilter2` in npm:
 
 Use Node.js 24 and the pnpm version pinned in `package.json`. Install dependencies with `pnpm install --frozen-lockfile`.
 
-`pnpm test` builds with TypeScript 7, runs the tests, typechecks the library and test suite, and runs lint. `pnpm run build` emits ES module, CommonJS, and browser bundles with TypeScript declarations. `pnpm run benchmark` measures indexing, filtering, and removal.
+`pnpm test` builds the library, runs the tests, typechecks the library and test suite, checks the demo, and runs lint. `pnpm run build` bundles the library with tsdown into an ES module with TypeScript declarations and a minified browser script. `pnpm run benchmark` measures indexing, filtering, and removal.
 
 ## Demo
 

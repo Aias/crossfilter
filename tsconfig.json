@@ -7,15 +7,11 @@
     "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noEmitOnError": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "lib",
-    "rootDir": ".",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "types": []
   },
-  "include": ["index.ts", "src/**/*.ts"]
+  "include": ["index.ts", "src/**/*.ts", "test/**/*.ts"]
 }

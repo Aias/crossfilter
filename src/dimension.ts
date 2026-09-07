@@ -574,6 +574,7 @@ export default function createDimension<T, V, A>(
     if (top_offset && top_offset > 0) toSkip = top_offset;
 
     while (--i >= lo0 && k > 0) {
+      if (iterable && iterablesIndexFilterStatus[i]) continue;
       if (context.filters.zero((j = index[i]))) {
         if (toSkip > 0) {
           --toSkip;
@@ -624,6 +625,10 @@ export default function createDimension<T, V, A>(
     i = lo0;
 
     while (i < hi0 && k > 0) {
+      if (iterable && iterablesIndexFilterStatus[i]) {
+        i++;
+        continue;
+      }
       if (context.filters.zero((j = index[i]))) {
         if (toSkip > 0) {
           --toSkip;

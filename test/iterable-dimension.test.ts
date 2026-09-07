@@ -100,6 +100,14 @@ describe("iterablesEmptyRows", () => {
       expect(data.allFiltered()).toHaveLength(6);
     });
 
+    it("lists a record once per value that passes a predicate filter", () => {
+      const tagged = crossfilter([{ tags: [1, 2, 3] }, { tags: [2] }, { tags: [4] }]);
+      const tags = tagged.dimension((record) => record.tags, true);
+      tags.filterFunction((tag) => tag % 2 === 0);
+      expect(tags.top(Infinity)).toStrictEqual([{ tags: [4] }, { tags: [1, 2, 3] }, { tags: [2] }]);
+      expect(tags.bottom(Infinity)).toStrictEqual([{ tags: [1, 2, 3] }, { tags: [2] }, { tags: [4] }]);
+    });
+
     it("keeps empty records excluded when a predicate filter becomes a range filter", () => {
       data.labels.filterFunction((label) => label.length > 0);
       data.labels.filterRange(["a", "d"]);

@@ -126,7 +126,7 @@ export function createModel(flights: Crossfilter<Flight>) {
 export type FlightsModel = ReturnType<typeof createModel>;
 
 export async function loadFlights(): Promise<Flight[]> {
-  const response = await fetch("/flights-3m.csv");
+  const response = await fetch(`${import.meta.env.BASE_URL}flights-3m.csv`);
   const text = await response.text();
   return csvParse(text, (row, index): Flight => ({
     index,

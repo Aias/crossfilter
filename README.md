@@ -28,3 +28,7 @@ This package can be found under the name `crossfilter2` in npm:
 Use Node.js 24 and the pnpm version pinned in `package.json`. Install dependencies with `pnpm install --frozen-lockfile`.
 
 `pnpm test` builds with TypeScript 7, runs the JavaScript tests, checks the generated public types, and runs lint. `pnpm run build` emits ES module, CommonJS, and browser bundles with TypeScript declarations. `pnpm run benchmark` measures indexing, filtering, and removal.
+
+## Demo
+
+The airline on-time performance example from the original project lives in `demo/` as a React application. It consumes the `crossfilter2` package through the workspace, builds its charts on the modular d3 packages, and treats the crossfilter as an external store through `useSyncExternalStore`. Run `pnpm run demo` to build the library and start the Vite dev server.

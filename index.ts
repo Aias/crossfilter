@@ -185,24 +185,34 @@ function isIterableValue(value: unknown): value is ArrayLike<unknown> {
 
 export default crossfilter;
 
+type CrossfilterOf<T> = Crossfilter<T>;
+type DimensionOf<T, V, A = V> = DimensionType<T, V, A>;
+type GroupOf<T, K, V> = import("./src/group.js").Group<T, K, V>;
+type GroupAllOf<T, V> = GroupAllType<T, V>;
+type GroupingOf<K, V> = import("./src/group.js").Grouping<K, V>;
+type ComparableObjectOf = import("./src/order.js").ComparableObject;
+type NaturallyOrderedValueOf = import("./src/order.js").NaturallyOrderedValue;
+type FilterValueOf<V> = import("./src/dimension.js").FilterValue<V>;
+type Permutation = typeof permutation;
+
 namespace crossfilter {
   export const version = packageVersion;
   export const heap = xfilterHeap;
   export const heapselect = xfilterHeapselect;
   export const bisect = bisection;
-  export const permute = permutation;
-  export type Crossfilter<T> = import("./index.js").Crossfilter<T>;
-  export type Dimension<T, V, A = V> = DimensionType<T, V, A>;
-  export type Group<T, K, V> = import("./src/group.js").Group<T, K, V>;
-  export type GroupAll<T, V> = GroupAllType<T, V>;
-  export type Grouping<K, V> = import("./src/group.js").Grouping<K, V>;
+  export const permute: Permutation = permutation;
+  export type Crossfilter<T> = CrossfilterOf<T>;
+  export type Dimension<T, V, A = V> = DimensionOf<T, V, A>;
+  export type Group<T, K, V> = GroupOf<T, K, V>;
+  export type GroupAll<T, V> = GroupAllOf<T, V>;
+  export type Grouping<K, V> = GroupingOf<K, V>;
   export type ComparableValue = string | number | boolean;
-  export type ComparableObject = import("./src/order.js").ComparableObject;
-  export type NaturallyOrderedValue = import("./src/order.js").NaturallyOrderedValue;
+  export type ComparableObject = ComparableObjectOf;
+  export type NaturallyOrderedValue = NaturallyOrderedValueOf;
   export type Predicate<T> = (record: T) => boolean;
   export type TSelectorValue = NaturallyOrderedValue | NaturallyOrderedValue[];
   export type OrderedValueSelector<T, V = NaturallyOrderedValue> = (record: T) => V;
-  export type FilterValue<V = NaturallyOrderedValue> = import("./src/dimension.js").FilterValue<V>;
+  export type FilterValue<V = NaturallyOrderedValue> = FilterValueOf<V>;
   export type HeapSelector<T> = (records: T[], lo: number, hi: number, k: number) => T[];
   export type Heap<T> = Sorter<T> & { sort: Sorter<T> };
   export type Sorter<T> = (records: T[], lo: number, hi: number) => T[];

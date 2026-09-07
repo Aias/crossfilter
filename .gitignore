@@ -1,8 +1,9 @@
-.context
 .DS_Store
+.context
 crossfilter.cjs
 crossfilter.js
 crossfilter.min.js
+demo/dist
 lib
 main.js
 node_modules

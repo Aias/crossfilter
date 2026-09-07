@@ -1,0 +1,150 @@
+body {
+  font-family: "Helvetica Neue", sans-serif;
+  margin: 40px auto;
+  width: 960px;
+  min-height: 2000px;
+}
+
+#root {
+  position: relative;
+}
+
+footer {
+  padding: 2em 0 1em 0;
+  font-size: 12px;
+}
+
+footer .license {
+  float: right;
+}
+
+h1 {
+  font-size: 96px;
+  margin-top: 0.3em;
+  margin-bottom: 0;
+}
+
+h1 + h2 {
+  margin-top: 0;
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 28px;
+}
+
+h1,
+h2 {
+  font-family: "Yanone Kaffeesatz", sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+#root > p {
+  line-height: 1.5em;
+  width: 640px;
+  text-rendering: optimizeLegibility;
+}
+
+.question,
+.reset {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.question {
+  color: #00e;
+  text-decoration: underline;
+}
+
+.charts {
+  padding: 10px 0;
+}
+
+.chart {
+  display: inline-block;
+  height: 151px;
+  margin-bottom: 20px;
+}
+
+.reset {
+  padding-left: 1em;
+  font-size: smaller;
+  color: #ccc;
+}
+
+.background.bar {
+  fill: #ccc;
+}
+
+.foreground.bar {
+  fill: steelblue;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.brush .selection {
+  fill: steelblue;
+  fill-opacity: 0.125;
+  stroke: none;
+}
+
+.grip {
+  fill: #eee;
+  stroke: #666;
+  pointer-events: none;
+}
+
+.list {
+  min-height: 1024px;
+}
+
+.list .date,
+.list .day {
+  margin-bottom: 0.4em;
+}
+
+.list .flight {
+  line-height: 1.5em;
+  background: #eee;
+  width: 640px;
+  margin-bottom: 1px;
+}
+
+.list .time {
+  color: #999;
+}
+
+.list .flight div {
+  display: inline-block;
+  width: 100px;
+}
+
+.list div.distance,
+.list div.delay {
+  width: 160px;
+  padding-right: 10px;
+  text-align: right;
+}
+
+.list .early {
+  color: green;
+}
+
+.totals {
+  position: absolute;
+  left: 740px;
+  font-size: smaller;
+  width: 220px;
+}

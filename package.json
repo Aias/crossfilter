@@ -84,7 +84,6 @@
         "types": "./index.d.cts",
         "default": "./crossfilter.cjs"
       }
-    },
-    "./*": "./*"
+    }
   }
 }

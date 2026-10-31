@@ -91,7 +91,7 @@ The airline on-time performance example is deployed at https://aias.github.io/cr
 
 ## Development
 
-Use Node.js 24 and the pnpm version pinned in `package.json`. Install dependencies with `pnpm install --frozen-lockfile`.
+Use Node.js 26 and the pnpm version pinned in `package.json`. Install dependencies with `pnpm install --frozen-lockfile`.
 
 `pnpm test` builds the library, runs the tests, typechecks the library and test suite, checks the demo, and runs lint. `pnpm run build` bundles the library with tsdown into an ES module with TypeScript declarations and a minified browser script. `pnpm run benchmark` measures indexing, filtering, and removal.
 
